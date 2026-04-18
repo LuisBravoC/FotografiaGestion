@@ -103,7 +103,7 @@ export async function getAlumno(id) {
   )
 }
 
-export async function buscarAlumnos(query) {
+export async function buscarAlumnos(query, signal) {
   if (!query || query.trim().length < 2) return []
   const q = `%${query.trim()}%`
   const { data, error } = await supabase
@@ -120,6 +120,7 @@ export async function buscarAlumnos(query) {
     `)
     .or(`nombre_alumno.ilike.${q},nombre_tutor.ilike.${q}`)
     .limit(8)
+    .abortSignal(signal)
   if (error) return []
   return data.map(a => ({
     ...a,

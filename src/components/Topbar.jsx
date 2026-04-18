@@ -8,13 +8,24 @@ export default function Topbar() {
   const [results, setResults] = useState([])
   const [open,    setOpen]    = useState(false)
   const wrapRef   = useRef(null)
-  const timerRef  = useRef(null)
+  const timerRef   = useRef(null)
+  const abortRef   = useRef(null)
 
   const doSearch = useCallback(async (v) => {
     if (!v || v.trim().length < 2) { setResults([]); setOpen(false); return }
-    const r = await buscarAlumnos(v)
-    setResults(r)
-    setOpen(r.length > 0)
+    // Cancela la búsqueda anterior si aún está en vuelo
+    if (abortRef.current) abortRef.current.abort()
+    abortRef.current = new AbortController()
+    const signal = abortRef.current.signal
+    try {
+      const r = await buscarAlumnos(v, signal)
+      if (!signal.aborted) {
+        setResults(r)
+        setOpen(r.length > 0)
+      }
+    } catch (e) {
+      if (e?.name !== 'AbortError') console.error(e)
+    }
   }, [])
 
   function handleChange(e) {

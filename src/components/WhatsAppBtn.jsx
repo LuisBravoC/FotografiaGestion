@@ -10,7 +10,9 @@ const fmt = n => n.toLocaleString('es-MX', { style: 'currency', currency: 'MXN',
  *   saldo         — number
  */
 export default function WhatsAppBtn({ nombreTutor, nombreAlumno, telefono, saldo }) {
-  const phone  = '52' + (telefono ?? '').replace(/\D/g, '')
+  const phone = '52' + (telefono ?? '').replace(/\D/g, '')
+  // Requiere al menos 10 dígitos después del código de país (12 total)
+  if (phone.length < 12) return null
   const saldoFmt = fmt(saldo)
   const msg = `Hola ${nombreTutor}, le recordamos que el saldo pendiente de *${nombreAlumno}* es de *${saldoFmt}*. Puede comunicarse con nosotros para realizar su pago. ¡Gracias!`
   const url  = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`

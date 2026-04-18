@@ -127,7 +127,7 @@ export default function AlumnoDetail() {
   const alumno  = alumnoQ.data
   const historial = pagosQ.data ?? []
   const saldo   = Number(alumno.saldo_pendiente)
-  const iniciales = alumno.nombre_alumno.split(' ').map(w => w[0]).slice(0, 2).join('')
+  const iniciales = (alumno.nombre_alumno ?? '').split(' ').filter(Boolean).map(w => w[0]).slice(0, 2).join('') || '?'
   const paquetes  = paqQ.data ?? []
 
   const crumbs = [
