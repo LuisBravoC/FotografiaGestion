@@ -12,7 +12,6 @@ function check({ data, error }, label) {
     console.error(`[queries] ${label ?? ''}`, error)
     throw error
   }
-  if (label) console.log(`[queries] ${label} →`, data)
   return data
 }
 

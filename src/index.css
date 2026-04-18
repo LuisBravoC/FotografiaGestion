@@ -84,6 +84,13 @@ body {
 .topbar-nav-link:hover { background: var(--bg-hover); color: var(--text); }
 .topbar-nav-link.active { background: rgba(99,102,241,.15); color: var(--accent-light); }
 
+@media (max-width: 540px) {
+  .nav-label { display: none; }
+  .topbar-nav-link { padding: .35rem .5rem; }
+  .topbar-brand span, .topbar-brand-text { display: none; }
+  .topbar-search { max-width: 140px; }
+}
+
 .topbar-search {
   flex: 1;
   max-width: 420px;
@@ -241,6 +248,92 @@ thead th {
 tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
 tbody tr:hover { background: var(--bg-hover); }
 tbody td { padding: .75rem 1rem; vertical-align: middle; }
+
+/* ── Tabla → tarjetas en móvil ───────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .table-wrap thead { display: none; }
+  .table-wrap tbody,
+  .table-wrap tr { display: block; }
+
+  .table-wrap tr {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: .75rem;
+    padding: .85rem 1rem;
+    background: var(--bg-card);
+  }
+  .table-wrap tr:last-child { margin-bottom: 0; }
+
+  /* base para todas las celdas */
+  .table-wrap td { display: flex; align-items: center; padding: .2rem 0; border: none; font-size: .88rem; }
+
+  /* ── 1: Nombre alumno ── */
+  .table-wrap td:nth-child(1) {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--accent-light);
+    padding-bottom: .35rem;
+  }
+
+  /* ── 2: Tutor ── subtítulo bajo el nombre */
+  .table-wrap td:nth-child(2) {
+    font-size: .8rem;
+    color: var(--text-muted);
+    margin-bottom: .5rem;
+    padding-bottom: .5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .table-wrap td:nth-child(2)::before {
+    content: 'Tutor: ';
+    font-weight: 600;
+    margin-right: .25rem;
+    color: var(--text-muted);
+  }
+
+  /* ── 3: Paquete ── */
+  .table-wrap td:nth-child(3) {
+    font-size: .82rem;
+    color: var(--text-muted);
+    margin-bottom: .5rem;
+    padding-bottom: .5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .table-wrap td:nth-child(3)::before {
+    content: '📦';
+    margin-right: .4rem;
+    font-size: .85rem;
+  }
+
+  /* ── 4: Precio ── oculto */
+  .table-wrap td:nth-child(4) { display: none; }
+
+  /* ── 5: Pagado  6: Saldo  7: Badge pago  8: Badge entrega ── fila inline */
+  .table-wrap td:nth-child(5),
+  .table-wrap td:nth-child(6),
+  .table-wrap td:nth-child(7),
+  .table-wrap td:nth-child(8) {
+    display: inline-flex;
+    align-items: center;
+    margin-right: .6rem;
+    margin-top: .2rem;
+    vertical-align: middle;
+  }
+
+  /* mini-labels encima del valor */
+  .table-wrap td:nth-child(5) { flex-direction: column; align-items: flex-start; margin-right: 1rem; }
+  .table-wrap td:nth-child(6) { flex-direction: column; align-items: flex-start; margin-right: 1rem; }
+  .table-wrap td:nth-child(5)::before { content: 'Pagado'; font-size: .68rem; text-transform: uppercase; letter-spacing: .05em; color: var(--text-muted); }
+  .table-wrap td:nth-child(6)::before { content: 'Saldo'; font-size: .68rem; text-transform: uppercase; letter-spacing: .05em; color: var(--text-muted); }
+
+  /* ── 9: Acciones ── */
+  .table-wrap td:nth-child(9) {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: .6rem;
+    padding-top: .5rem;
+    border-top: 1px solid var(--border);
+  }
+}
 tbody tr:last-child { border-bottom: none; }
 .td-name { font-weight: 600; }
 

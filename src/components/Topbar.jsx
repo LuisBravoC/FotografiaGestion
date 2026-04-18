@@ -44,7 +44,7 @@ export default function Topbar() {
     <header className="topbar">
       <Link to="/" className="topbar-brand">
         <Camera size={22} />
-        FotoGestión
+        <span className="nav-label">FotoGestión</span>
       </Link>
 
       <div className="topbar-search" ref={wrapRef}>
@@ -92,10 +92,10 @@ export default function Topbar() {
 
       <nav className="topbar-nav">
         <NavLink to="/instituciones" className={({ isActive }) => 'topbar-nav-link' + (isActive ? ' active' : '')}>
-          <Building2 size={15} /> Instituciones
+          <Building2 size={15} /> <span className="nav-label">Instituciones</span>
         </NavLink>
         <NavLink to="/ajustes" className={({ isActive }) => 'topbar-nav-link' + (isActive ? ' active' : '')}>
-          <BookImage size={15} /> Paquetes
+          <BookImage size={15} /> <span className="nav-label">Paquetes</span>
         </NavLink>
       </nav>
 
