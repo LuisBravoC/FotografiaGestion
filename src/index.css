@@ -47,10 +47,13 @@ body {
   border-bottom: 1px solid var(--border);
   padding: 0 1.5rem;
   height: 60px;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 560px 1fr;
   align-items: center;
   gap: 1rem;
 }
+.topbar-brand  { justify-self: start; }
+.topbar-nav    { justify-self: end; }
 
 .topbar-brand {
   display: flex;
@@ -85,15 +88,15 @@ body {
 .topbar-nav-link.active { background: rgba(99,102,241,.15); color: var(--accent-light); }
 
 @media (max-width: 540px) {
+  .topbar { grid-template-columns: auto 1fr auto; }
   .nav-label { display: none; }
   .topbar-nav-link { padding: .35rem .5rem; }
   .topbar-brand span, .topbar-brand-text { display: none; }
-  .topbar-search { max-width: 140px; }
+  .topbar-search { max-width: 100%; }
 }
 
 .topbar-search {
-  flex: 1;
-  max-width: 420px;
+  width: 100%;
   position: relative;
 }
 
