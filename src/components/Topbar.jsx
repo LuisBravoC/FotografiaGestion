@@ -108,7 +108,7 @@ export default function Topbar() {
         <NavLink to="/instituciones" className={({ isActive }) => 'topbar-nav-link' + (isActive ? ' active' : '')}>
           <Building2 size={15} /> <span className="nav-label">Instituciones</span>
         </NavLink>
-        <NavLink to="/ajustes" className={({ isActive }) => 'topbar-nav-link' + (isActive ? ' active' : '')}>
+        <NavLink to="/paquetes" className={({ isActive }) => 'topbar-nav-link' + (isActive ? ' active' : '')}>
           <BookImage size={15} /> <span className="nav-label">Paquetes</span>
         </NavLink>
       </nav>

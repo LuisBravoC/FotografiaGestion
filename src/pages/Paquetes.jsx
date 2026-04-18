@@ -25,7 +25,7 @@ const CARD_ACCENTS = [
   { bg: 'rgba(20,184,166,.1)',   border: 'rgba(20,184,166,.3)',   text: '#5eead4' },
 ]
 
-export default function Ajustes() {
+export default function Paquetes() {
   const [refresh, setRefresh] = useState(0)
   const crumbs = useBreadcrumbs()
   const { data, loading, error } = useQuery(() => q.getPaquetes(), [refresh])

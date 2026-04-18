@@ -7,6 +7,7 @@ const SEGMENT_LABEL = {
   grupos:        null,
   alumnos:       null,
   ajustes:       'Ajustes',
+  paquetes:      'Paquetes',
   deudas:        'Deudas pendientes',
 }
 

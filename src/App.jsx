@@ -8,7 +8,7 @@ import Grupos from './pages/Grupos.jsx'
 import AlumnosList from './pages/AlumnosList.jsx'
 import AlumnoDetail from './pages/AlumnoDetail.jsx'
 import Deudas from './pages/Deudas.jsx'
-import Ajustes from './pages/Ajustes.jsx'
+import Paquetes from './pages/Paquetes.jsx'
 
 export default function App() {
   return (
@@ -38,8 +38,8 @@ export default function App() {
           {/* Deudas pendientes */}
           <Route path="/deudas" element={<Deudas />} />
 
-          {/* Ajustes */}}
-          <Route path="/ajustes" element={<Ajustes />} />
+          {/* Paquetes */}
+          <Route path="/paquetes" element={<Paquetes />} />
 
           {/* Catch-all */}
           <Route path="*" element={<Navigate to="/" replace />} />
