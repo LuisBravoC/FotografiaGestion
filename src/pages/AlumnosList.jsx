@@ -34,6 +34,8 @@ export default function AlumnosList() {
   const [saving,  setSaving]  = useState(false)
   const [confirm,  setConfirm]  = useState(null)
   const [errModal,  setErrModal] = useState(null)
+  const [filtroPago,     setFiltroPago]     = useState('todos')
+  const [filtroEntrega,  setFiltroEntrega]  = useState('todos')
   const showErr = e => setErrModal(typeof e === 'string' ? { title: 'Aviso', body: e } : (e?.title ? e : parseError(e)))
   const toast = useToast()
 
@@ -83,6 +85,10 @@ export default function AlumnosList() {
   const resumen  = resumenQ.data ?? { miembros: 0, totalEsperado: 0, totalCobrado: 0, porCobrar: 0 }
   const paquetes = paqQ.data ?? []
 
+  const filtrados = miembros
+    .filter(a => filtroPago    === 'todos' || a.estatus_pago     === filtroPago)
+    .filter(a => filtroEntrega === 'todos' || a.estatus_entrega  === filtroEntrega)
+
   const crumbs = [
     { label: 'Dashboard', to: '/' },
     { label: 'Instituciones', to: '/instituciones' },
@@ -124,6 +130,31 @@ export default function AlumnosList() {
         <ProgressBar value={resumen.totalCobrado} max={resumen.totalEsperado} />
 
         <p className="section-heading">Lista de alumnos</p>
+
+        {/* ── Filtros ── */}
+        <div className="filter-bar">
+          <div className="filter-bar-group">
+            <span className="filter-bar-label">Pago:</span>
+            {['todos','deuda','abonado','liquidado'].map(v => (
+              <button key={v} className={`filter-pill${filtroPago === v ? ' active' : ''}`}
+                onClick={() => setFiltroPago(v)}>
+                {v === 'todos' ? 'Todos' : v.charAt(0).toUpperCase() + v.slice(1)}
+              </button>
+            ))}
+          </div>
+          <div className="filter-bar-group">
+            <span className="filter-bar-label">Entrega:</span>
+            {['todos','Pendiente','Entregado'].map(v => (
+              <button key={v} className={`filter-pill${filtroEntrega === v ? ' active' : ''}`}
+                onClick={() => setFiltroEntrega(v)}>
+                {v === 'todos' ? 'Todos' : v}
+              </button>
+            ))}
+          </div>
+          {(filtroPago !== 'todos' || filtroEntrega !== 'todos') && (
+            <span className="filter-count">{filtrados.length} de {miembros.length} alumnos</span>
+          )}
+        </div>
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
           <div className="table-wrap">
             <table>
@@ -135,7 +166,9 @@ export default function AlumnosList() {
                 </tr>
               </thead>
               <tbody>
-                {miembros.map(a => (
+                {filtrados.length === 0 ? (
+                  <tr><td colSpan={9} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>Ningún alumno coincide con los filtros aplicados.</td></tr>
+                ) : filtrados.map(a => (
                   <tr key={a.id} style={{ cursor: 'pointer' }}
                     onClick={() => navigate(`/instituciones/${inst.id}/proyectos/${proy.id}/grupos/${grupo.id}/alumnos/${a.id}`)}>
                     <td className="td-name" style={{ color: 'var(--accent-light)' }}>{a.nombre_alumno}</td>
