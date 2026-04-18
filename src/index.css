@@ -48,7 +48,7 @@ body {
   padding: 0 1.5rem;
   height: 60px;
   display: grid;
-  grid-template-columns: 1fr 560px 1fr;
+  grid-template-columns: auto minmax(0, 560px) auto;
   align-items: center;
   gap: 1rem;
 }
@@ -87,12 +87,17 @@ body {
 .topbar-nav-link:hover { background: var(--bg-hover); color: var(--text); }
 .topbar-nav-link.active { background: rgba(99,102,241,.15); color: var(--accent-light); }
 
-@media (max-width: 540px) {
+/* 1er paso: desaparece el texto "FotoGestión" */
+@media (max-width: 740px) {
   .topbar { grid-template-columns: auto 1fr auto; }
-  .nav-label { display: none; }
-  .topbar-nav-link { padding: .35rem .5rem; }
-  .topbar-brand span, .topbar-brand-text { display: none; }
   .topbar-search { max-width: 100%; }
+  .topbar-brand span, .topbar-brand-text { display: none; }
+}
+
+/* 2do paso: desaparecen los textos de Deudas, Instituciones y Paquetes */
+@media (max-width: 640px) {
+  .topbar-nav-link { padding: .35rem .5rem; }
+  .topbar-nav-link .nav-label { display: none; }
 }
 
 .topbar-search {
