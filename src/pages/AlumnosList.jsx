@@ -1,5 +1,6 @@
-import { Link, useParams } from 'react-router-dom'
-import { Users, AlertCircle, Download } from 'lucide-react'
+﻿import { useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { Users, AlertCircle, Download, Pencil, Trash2, Plus } from 'lucide-react'
 import { useQuery } from '../lib/useQuery.js'
 import * as q from '../lib/queries.js'
 import Breadcrumbs from '../components/Breadcrumbs.jsx'
@@ -7,28 +8,74 @@ import StatusBadge from '../components/StatusBadge.jsx'
 import ProgressBar from '../components/ProgressBar.jsx'
 import WhatsAppBtn from '../components/WhatsAppBtn.jsx'
 import LoadingSpinner, { ErrorMsg } from '../components/LoadingSpinner.jsx'
+import Drawer from '../components/Drawer.jsx'
+import ConfirmModal from '../components/ConfirmModal.jsx'
 
 const fmt = n => Number(n).toLocaleString('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 })
+const EMPTY = { nombre_alumno: '', nombre_tutor: '', telefono_contacto: '', paquete_id: '', estatus_entrega: 'Pendiente', comentarios: '' }
 
 export default function AlumnosList() {
+  const navigate = useNavigate()
   const { instId, proyId, grupoId } = useParams()
+  const [refresh, setRefresh] = useState(0)
+
   const instQ    = useQuery(() => q.getInstitucion(Number(instId)), [instId])
   const proyQ    = useQuery(() => q.getProyecto(Number(proyId)), [proyId])
   const grupoQ   = useQuery(() => q.getGrupo(Number(grupoId)), [grupoId])
-  const alumnosQ = useQuery(() => q.getAlumnosByGrupo(Number(grupoId)), [grupoId])
-  const resumenQ = useQuery(() => q.getResumenGrupo(Number(grupoId)), [grupoId])
+  const alumnosQ = useQuery(() => q.getAlumnosByGrupo(Number(grupoId)), [grupoId, refresh])
+  const resumenQ = useQuery(() => q.getResumenGrupo(Number(grupoId)), [grupoId, refresh])
+  const paqQ     = useQuery(() => q.getPaquetes(), [])
+
+  const [drawer,  setDrawer]  = useState(null)
+  const [form,    setForm]    = useState(EMPTY)
+  const [saving,  setSaving]  = useState(false)
+  const [confirm, setConfirm] = useState(null)
+
+  const set  = (k, v) => setForm(f => ({ ...f, [k]: v }))
+  const done = ()     => { setRefresh(r => r + 1); setDrawer(null) }
+
+  function openCreate() {
+    const defPaq = (paqQ.data ?? [])[0]?.id ?? ''
+    setForm({ ...EMPTY, paquete_id: defPaq })
+    setDrawer({ mode: 'create' })
+  }
+  function openEdit(a, e) {
+    e.stopPropagation()
+    setForm({ nombre_alumno: a.nombre_alumno, nombre_tutor: a.nombre_tutor ?? '', telefono_contacto: a.telefono_contacto ?? '', paquete_id: a.paquete_id, estatus_entrega: a.estatus_entrega ?? 'Pendiente', comentarios: a.comentarios ?? '' })
+    setDrawer({ mode: 'edit', record: a })
+  }
+
+  async function handleSave() {
+    if (!form.nombre_alumno.trim()) return alert('El nombre del alumno es requerido')
+    if (!form.paquete_id) return alert('Selecciona un paquete')
+    setSaving(true)
+    try {
+      const payload = { ...form, paquete_id: Number(form.paquete_id) }
+      if (drawer.mode === 'create') await q.insertAlumno({ ...payload, grupo_id: Number(grupoId) })
+      else await q.updateAlumno(drawer.record.id, payload)
+      done()
+    } catch (e) { alert('Error: ' + (e.message ?? e)) }
+    finally { setSaving(false) }
+  }
+
+  async function handleDelete() {
+    setSaving(true)
+    try { await q.deleteAlumno(confirm); setConfirm(null); setRefresh(r => r + 1) }
+    catch (e) { alert('Error al eliminar: ' + (e.message ?? e)) }
+    finally { setSaving(false) }
+  }
 
   if (instQ.loading || proyQ.loading || grupoQ.loading || alumnosQ.loading)
     return <LoadingSpinner text="Cargando alumnos…" />
-  if (instQ.error || proyQ.error || grupoQ.error)
-    return <ErrorMsg message={instQ.error ?? proyQ.error ?? grupoQ.error} />
+  if (instQ.error || proyQ.error || grupoQ.error) return <ErrorMsg message={instQ.error ?? proyQ.error ?? grupoQ.error} />
   if (!instQ.data || !proyQ.data || !grupoQ.data) return <NotFound />
 
-  const inst    = instQ.data
-  const proy    = proyQ.data
-  const grupo   = grupoQ.data
+  const inst     = instQ.data
+  const proy     = proyQ.data
+  const grupo    = grupoQ.data
   const miembros = alumnosQ.data ?? []
   const resumen  = resumenQ.data ?? { miembros: 0, totalEsperado: 0, totalCobrado: 0, porCobrar: 0 }
+  const paquetes = paqQ.data ?? []
 
   const crumbs = [
     { label: 'Dashboard', to: '/' },
@@ -40,18 +87,11 @@ export default function AlumnosList() {
 
   function exportCSV() {
     const rows = [['Alumno', 'Tutor', 'Teléfono', 'Paquete', 'Precio', 'Pagado', 'Saldo', 'Estatus', 'Entrega']]
-    miembros.forEach(a => {
-      rows.push([
-        a.nombre_alumno, a.nombre_tutor, a.telefono_contacto,
-        a.paquete_titulo, a.precio_paquete, a.total_pagado, a.saldo_pendiente,
-        a.estatus_pago, a.estatus_entrega
-      ])
-    })
-    const csv  = rows.map(r => r.join(',')).join('\n')
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
+    miembros.forEach(a => rows.push([a.nombre_alumno, a.nombre_tutor, a.telefono_contacto, a.paquete_titulo, a.precio_paquete, a.total_pagado, a.saldo_pendiente, a.estatus_pago, a.estatus_entrega]))
+    const blob = new Blob(['\uFEFF' + rows.map(r => r.join(',')).join('\n')], { type: 'text/csv;charset=utf-8;' })
     const url  = URL.createObjectURL(blob)
     const el   = document.createElement('a')
-    el.href = url; el.download = `${grupo.nombre_grupo}-alumnos.csv`; el.click()
+      el.href = url; el.download = `${grupo.nombre_grupo}-alumnos.csv`; el.click()
     URL.revokeObjectURL(url)
   }
 
@@ -63,9 +103,10 @@ export default function AlumnosList() {
           <h1 className="page-title" style={{ margin: 0 }}>
             <Users size={22} /> {grupo.nombre_grupo} — {grupo.turno}
           </h1>
-          <button className="btn btn-outline" onClick={exportCSV}>
-            <Download size={15} /> Exportar CSV
-          </button>
+          <div style={{ display: 'flex', gap: '.6rem' }}>
+            <button className="btn btn-outline" onClick={exportCSV}><Download size={15} /> Exportar CSV</button>
+            <button className="btn btn-primary" onClick={openCreate}><Plus size={15} /> Nuevo alumno</button>
+          </div>
         </div>
 
         <div className="saldo-box" style={{ marginBottom: '1.5rem' }}>
@@ -89,37 +130,24 @@ export default function AlumnosList() {
               </thead>
               <tbody>
                 {miembros.map(a => (
-                  <tr key={a.id}>
-                    <td className="td-name">
-                      <Link
-                        to={`/instituciones/${inst.id}/proyectos/${proy.id}/grupos/${grupo.id}/alumnos/${a.id}`}
-                        style={{ color: 'var(--accent-light)', textDecoration: 'none' }}
-                      >
-                        {a.nombre_alumno}
-                      </Link>
-                    </td>
+                  <tr key={a.id} style={{ cursor: 'pointer' }}
+                    onClick={() => navigate(`/instituciones/${inst.id}/proyectos/${proy.id}/grupos/${grupo.id}/alumnos/${a.id}`)}>
+                    <td className="td-name" style={{ color: 'var(--accent-light)' }}>{a.nombre_alumno}</td>
                     <td style={{ color: 'var(--text-muted)', fontSize: '.82rem' }}>{a.nombre_tutor}</td>
                     <td>{a.paquete_titulo}</td>
                     <td>{fmt(a.precio_paquete)}</td>
                     <td style={{ color: 'var(--liquidado)' }}>{fmt(a.total_pagado)}</td>
-                    <td style={{ color: Number(a.saldo_pendiente) > 0 ? 'var(--abonado)' : 'var(--liquidado)', fontWeight: 600 }}>
-                      {fmt(a.saldo_pendiente)}
-                    </td>
+                    <td style={{ color: Number(a.saldo_pendiente) > 0 ? 'var(--abonado)' : 'var(--liquidado)', fontWeight: 600 }}>{fmt(a.saldo_pendiente)}</td>
                     <td><StatusBadge status={a.estatus_pago} /></td>
-                    <td>
-                      <span className={`badge ${a.estatus_entrega === 'Entregado' ? 'badge-liquidado' : 'badge-abonado'}`}>
-                        {a.estatus_entrega}
-                      </span>
-                    </td>
-                    <td>
-                      {Number(a.saldo_pendiente) > 0 && (
-                        <WhatsAppBtn
-                          nombreTutor={a.nombre_tutor}
-                          nombreAlumno={a.nombre_alumno}
-                          telefono={a.telefono_contacto}
-                          saldo={Number(a.saldo_pendiente)}
-                        />
-                      )}
+                    <td><span className={`badge ${a.estatus_entrega === 'Entregado' ? 'badge-liquidado' : 'badge-abonado'}`}>{a.estatus_entrega}</span></td>
+                    <td onClick={e => e.stopPropagation()}>
+                      <div style={{ display: 'flex', gap: '.25rem', alignItems: 'center' }}>
+                        {Number(a.saldo_pendiente) > 0 && (
+                          <WhatsAppBtn nombreTutor={a.nombre_tutor} nombreAlumno={a.nombre_alumno} telefono={a.telefono_contacto} saldo={Number(a.saldo_pendiente)} />
+                        )}
+                        <button className="btn-icon" title="Editar" onClick={e => openEdit(a, e)}><Pencil size={13} /></button>
+                        <button className="btn-icon danger" title="Eliminar" onClick={() => setConfirm(a.id)}><Trash2 size={13} /></button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -128,6 +156,47 @@ export default function AlumnosList() {
           </div>
         </div>
       </div>
+
+      {drawer && (
+        <Drawer
+          title={drawer.mode === 'create' ? 'Nuevo alumno' : 'Editar alumno'}
+          onClose={() => setDrawer(null)} onSave={handleSave} saving={saving}
+        >
+          <div className="field"><label>Nombre del alumno *</label>
+            <input value={form.nombre_alumno} onChange={e => set('nombre_alumno', e.target.value)} placeholder="ej. Luis Bravo" autoFocus />
+          </div>
+          <div className="field"><label>Nombre del tutor</label>
+            <input value={form.nombre_tutor} onChange={e => set('nombre_tutor', e.target.value)} placeholder="ej. Roberto Bravo" />
+          </div>
+          <div className="field"><label>Teléfono de contacto</label>
+            <input value={form.telefono_contacto} onChange={e => set('telefono_contacto', e.target.value)} placeholder="ej. 6671618370" />
+          </div>
+          <div className="field"><label>Paquete *</label>
+            <select value={form.paquete_id} onChange={e => set('paquete_id', e.target.value)}>
+              <option value="">— Seleccionar —</option>
+              {paquetes.map(p => (
+                <option key={p.id} value={p.id}>{p.titulo} — {fmt(p.precio)}</option>
+              ))}
+            </select>
+          </div>
+          <div className="field"><label>Estatus de entrega</label>
+            <select value={form.estatus_entrega} onChange={e => set('estatus_entrega', e.target.value)}>
+              <option value="Pendiente">Pendiente</option>
+              <option value="Entregado">Entregado</option>
+            </select>
+          </div>
+          <div className="field"><label>Comentarios</label>
+            <textarea value={form.comentarios} onChange={e => set('comentarios', e.target.value)} placeholder="Notas adicionales…" />
+          </div>
+        </Drawer>
+      )}
+
+      {confirm !== null && (
+        <ConfirmModal
+          message="¿Eliminar este alumno? Se eliminarán también sus pagos."
+          onConfirm={handleDelete} onCancel={() => setConfirm(null)} loading={saving}
+        />
+      )}
     </>
   )
 }
@@ -137,7 +206,7 @@ function NotFound() {
     <div className="page empty">
       <AlertCircle size={48} />
       <p>Datos no encontrados.</p>
-      <Link to="/" style={{ color: 'var(--accent-light)' }}>← Inicio</Link>
+      <a href="/" style={{ color: 'var(--accent-light)' }}>← Inicio</a>
     </div>
   )
 }

@@ -1,12 +1,16 @@
-import { Link } from 'react-router-dom'
-import { Building2, MapPin, User, ArrowRight } from 'lucide-react'
+﻿import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Building2, MapPin, User, ArrowRight, Pencil, Trash2, Plus } from 'lucide-react'
 import { useQuery } from '../lib/useQuery.js'
 import * as q from '../lib/queries.js'
 import Breadcrumbs from '../components/Breadcrumbs.jsx'
 import ProgressBar from '../components/ProgressBar.jsx'
 import LoadingSpinner, { ErrorMsg } from '../components/LoadingSpinner.jsx'
+import Drawer from '../components/Drawer.jsx'
+import ConfirmModal from '../components/ConfirmModal.jsx'
 
 const fmt = n => Number(n).toLocaleString('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 })
+const EMPTY = { nombre: '', ciudad: '', direccion: '', contacto: '' }
 
 const crumbs = [
   { label: 'Dashboard', to: '/' },
@@ -14,7 +18,41 @@ const crumbs = [
 ]
 
 export default function Instituciones() {
-  const { data, loading, error } = useQuery(() => q.getInstituciones(), [])
+  const [refresh, setRefresh] = useState(0)
+  const { data, loading, error } = useQuery(() => q.getInstituciones(), [refresh])
+
+  const [drawer,  setDrawer]  = useState(null)
+  const [form,    setForm]    = useState(EMPTY)
+  const [saving,  setSaving]  = useState(false)
+  const [confirm, setConfirm] = useState(null)
+
+  const set  = (k, v) => setForm(f => ({ ...f, [k]: v }))
+  const done = ()     => { setRefresh(r => r + 1); setDrawer(null) }
+
+  function openCreate() { setForm(EMPTY); setDrawer({ mode: 'create' }) }
+  function openEdit(inst, e) {
+    e.stopPropagation()
+    setForm({ nombre: inst.nombre, ciudad: inst.ciudad ?? '', direccion: inst.direccion ?? '', contacto: inst.contacto ?? '' })
+    setDrawer({ mode: 'edit', record: inst })
+  }
+
+  async function handleSave() {
+    if (!form.nombre.trim()) return alert('El nombre es requerido')
+    setSaving(true)
+    try {
+      if (drawer.mode === 'create') await q.insertInstitucion(form)
+      else await q.updateInstitucion(drawer.record.id, form)
+      done()
+    } catch (e) { alert('Error: ' + (e.message ?? e)) }
+    finally { setSaving(false) }
+  }
+
+  async function handleDelete() {
+    setSaving(true)
+    try { await q.deleteInstitucion(confirm); setConfirm(null); setRefresh(r => r + 1) }
+    catch (e) { alert('Error al eliminar: ' + (e.message ?? e)) }
+    finally { setSaving(false) }
+  }
 
   if (loading) return <><Breadcrumbs crumbs={crumbs} /><LoadingSpinner text="Cargando instituciones…" /></>
   if (error)   return <ErrorMsg message={error} />
@@ -23,38 +61,71 @@ export default function Instituciones() {
     <>
       <Breadcrumbs crumbs={crumbs} />
       <div className="page">
-        <h1 className="page-title"><Building2 size={22} /> Instituciones</h1>
+        <div className="page-title-row">
+          <h1 className="page-title" style={{ margin: 0 }}><Building2 size={22} /> Instituciones</h1>
+          <button className="btn btn-primary" onClick={openCreate}><Plus size={15} /> Nueva institución</button>
+        </div>
         <div className="grid grid-auto">
-          {data.map(inst => (
-            <InstCard key={inst.id} inst={inst} />
+          {(data ?? []).map(inst => (
+            <InstCard key={inst.id} inst={inst} onEdit={openEdit} onDelete={id => setConfirm(id)} />
           ))}
+          {(data ?? []).length === 0 && <p className="empty">No hay instituciones. Crea la primera.</p>}
         </div>
       </div>
+
+      {drawer && (
+        <Drawer
+          title={drawer.mode === 'create' ? 'Nueva institución' : 'Editar institución'}
+          onClose={() => setDrawer(null)} onSave={handleSave} saving={saving}
+        >
+          <div className="field"><label>Nombre *</label>
+            <input value={form.nombre} onChange={e => set('nombre', e.target.value)} placeholder="ej. Primaria Benito Juárez" autoFocus />
+          </div>
+          <div className="field"><label>Ciudad</label>
+            <input value={form.ciudad} onChange={e => set('ciudad', e.target.value)} placeholder="ej. Culiacán" />
+          </div>
+          <div className="field"><label>Dirección</label>
+            <input value={form.direccion} onChange={e => set('direccion', e.target.value)} placeholder="ej. Calle Morelos 45, Col. Centro" />
+          </div>
+          <div className="field"><label>Contacto</label>
+            <input value={form.contacto} onChange={e => set('contacto', e.target.value)} placeholder="ej. Directora M. García" />
+          </div>
+        </Drawer>
+      )}
+
+      {confirm !== null && (
+        <ConfirmModal
+          message="¿Eliminar esta institución? Se eliminarán en cascada sus generaciones, grupos y alumnos."
+          onConfirm={handleDelete} onCancel={() => setConfirm(null)} loading={saving}
+        />
+      )}
     </>
   )
 }
 
-function InstCard({ inst }) {
+function InstCard({ inst, onEdit, onDelete }) {
+  const navigate = useNavigate()
   const { data, loading } = useQuery(() => q.getResumenInstitucion(inst.id), [inst.id])
   const res = data ?? { totalEsperado: 0, totalCobrado: 0, porCobrar: 0 }
 
   return (
-    <Link to={`/instituciones/${inst.id}`} className="card card-link">
+    <div className="card card-clickable" onClick={() => navigate(`/instituciones/${inst.id}`)}>
       <div className="card-header">
-        <div><div className="card-title">{inst.nombre}</div></div>
-        <Building2 size={20} className="card-icon" />
-      </div>
-      <div style={{ fontSize: '.82rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '.3rem', marginBottom: '.75rem' }}>
-        <span style={{ display: 'flex', alignItems: 'center', gap: '.35rem' }}>
-          <MapPin size={13} /> {inst.direccion}{inst.ciudad ? `, ${inst.ciudad}` : ''}
-        </span>
-        <span style={{ display: 'flex', alignItems: 'center', gap: '.35rem' }}>
-          <User size={13} /> {inst.contacto}
-        </span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="card-title">{inst.nombre}</div>
+          <div style={{ fontSize: '.8rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '.2rem', marginTop: '.35rem' }}>
+            {inst.ciudad && <span style={{ display: 'flex', alignItems: 'center', gap: '.3rem' }}><MapPin size={11} /> {inst.ciudad}</span>}
+            {inst.contacto && <span style={{ display: 'flex', alignItems: 'center', gap: '.3rem' }}><User size={11} /> {inst.contacto}</span>}
+          </div>
+        </div>
+        <div className="card-actions" onClick={e => e.stopPropagation()}>
+          <button className="btn-icon" title="Editar" onClick={e => onEdit(inst, e)}><Pencil size={14} /></button>
+          <button className="btn-icon danger" title="Eliminar" onClick={() => onDelete(inst.id)}><Trash2 size={14} /></button>
+        </div>
       </div>
       {!loading && (
         <>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.82rem', color: 'var(--text-muted)', marginBottom: '.25rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.82rem', color: 'var(--text-muted)', margin: '.5rem 0 .25rem' }}>
             <span>Cobrado: <strong style={{ color: 'var(--liquidado)' }}>{fmt(res.totalCobrado)}</strong></span>
             <span>Falta: <strong style={{ color: 'var(--abonado)' }}>{fmt(res.porCobrar)}</strong></span>
           </div>
@@ -63,9 +134,9 @@ function InstCard({ inst }) {
       )}
       <div style={{ marginTop: '.75rem', display: 'flex', justifyContent: 'flex-end' }}>
         <span style={{ fontSize: '.8rem', color: 'var(--accent-light)', display: 'flex', alignItems: 'center', gap: '.2rem' }}>
-          Generaciones <ArrowRight size={13} />
+          Ver detalle <ArrowRight size={13} />
         </span>
       </div>
-    </Link>
+    </div>
   )
 }

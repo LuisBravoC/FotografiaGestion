@@ -245,3 +245,74 @@ export async function getResumenGlobal() {
     ),
   }
 }
+
+// =============================================================================
+// MUTACIONES — CREATE / UPDATE / DELETE
+// =============================================================================
+
+// ── Paquetes ──────────────────────────────────────────────────────────────────
+export async function insertPaquete(data) {
+  return check(await supabase.from('paquetes').insert(data).select().single(), 'insertPaquete')
+}
+export async function deletePaquete(id) {
+  const res = await supabase.from('paquetes').delete().eq('id', id)
+  if (res.error) throw res.error
+}
+
+// ── Instituciones ─────────────────────────────────────────────────────────────
+export async function insertInstitucion(data) {
+  return check(await supabase.from('instituciones').insert(data).select().single(), 'insertInstitucion')
+}
+export async function updateInstitucion(id, data) {
+  return check(await supabase.from('instituciones').update(data).eq('id', id).select().single(), 'updateInstitucion')
+}
+export async function deleteInstitucion(id) {
+  const res = await supabase.from('instituciones').delete().eq('id', id)
+  if (res.error) throw res.error
+}
+
+// ── Proyectos ─────────────────────────────────────────────────────────────────
+export async function insertProyecto(data) {
+  return check(await supabase.from('proyectos').insert(data).select().single(), 'insertProyecto')
+}
+export async function updateProyecto(id, data) {
+  return check(await supabase.from('proyectos').update(data).eq('id', id).select().single(), 'updateProyecto')
+}
+export async function deleteProyecto(id) {
+  const res = await supabase.from('proyectos').delete().eq('id', id)
+  if (res.error) throw res.error
+}
+
+// ── Grupos ────────────────────────────────────────────────────────────────────
+export async function insertGrupo(data) {
+  return check(await supabase.from('grupos').insert(data).select().single(), 'insertGrupo')
+}
+export async function updateGrupo(id, data) {
+  return check(await supabase.from('grupos').update(data).eq('id', id).select().single(), 'updateGrupo')
+}
+export async function deleteGrupo(id) {
+  const res = await supabase.from('grupos').delete().eq('id', id)
+  if (res.error) throw res.error
+}
+
+// ── Alumnos ───────────────────────────────────────────────────────────────────
+export async function insertAlumno(data) {
+  return check(await supabase.from('alumnos').insert(data).select().single(), 'insertAlumno')
+}
+export async function updateAlumno(id, data) {
+  return check(await supabase.from('alumnos').update(data).eq('id', id).select().single(), 'updateAlumno')
+}
+export async function deleteAlumno(id) {
+  const res = await supabase.from('alumnos').delete().eq('id', id)
+  if (res.error) throw res.error
+}
+
+// ── Pagos ─────────────────────────────────────────────────────────────────────
+export async function insertPago(data) {
+  return check(await supabase.from('pagos').insert(data).select().single(), 'insertPago')
+}
+export async function deletePago(id) {
+  const res = await supabase.from('pagos').delete().eq('id', id)
+  if (res.error) throw res.error
+}
+
