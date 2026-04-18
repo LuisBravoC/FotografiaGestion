@@ -28,7 +28,7 @@ export default function Instituciones() {
   const [saving,  setSaving]  = useState(false)
   const [confirm,  setConfirm]  = useState(null)
   const [errModal,  setErrModal] = useState(null)
-  const showErr = e => setErrModal(typeof e === 'string' ? { title: 'Aviso', body: e } : parseError(e))
+  const showErr = e => setErrModal(typeof e === 'string' ? { title: 'Aviso', body: e } : (e?.title ? e : parseError(e)))
 
   const set  = (k, v) => setForm(f => ({ ...f, [k]: v }))
   const done = ()     => { setRefresh(r => r + 1); setDrawer(null) }
@@ -53,7 +53,15 @@ export default function Instituciones() {
 
   async function handleDelete() {
     setSaving(true)
-    try { await q.deleteInstitucion(confirm); setConfirm(null); setRefresh(r => r + 1) }
+    try {
+      const res = await q.getResumenInstitucion(confirm)
+      if (res.porCobrar > 0) {
+        showErr({ title: 'Institución con deudas pendientes', body: `Esta institución tiene un saldo total sin liquidar de ${fmt(res.porCobrar)}. Liquida todas las deudas de sus alumnos antes de eliminar la institución.` })
+        setConfirm(null)
+        return
+      }
+      await q.deleteInstitucion(confirm); setConfirm(null); setRefresh(r => r + 1)
+    }
     catch (e) { showErr(e) }
     finally { setSaving(false) }
   }

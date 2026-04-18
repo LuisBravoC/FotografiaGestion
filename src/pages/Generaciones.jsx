@@ -27,7 +27,7 @@ export default function Generaciones() {
   const [saving,  setSaving]  = useState(false)
   const [confirm,  setConfirm]  = useState(null)
   const [errModal,  setErrModal] = useState(null)
-  const showErr = e => setErrModal(typeof e === 'string' ? { title: 'Aviso', body: e } : parseError(e))
+  const showErr = e => setErrModal(typeof e === 'string' ? { title: 'Aviso', body: e } : (e?.title ? e : parseError(e)))
 
   const set  = (k, v) => setForm(f => ({ ...f, [k]: v }))
   const done = ()     => { setRefresh(r => r + 1); setDrawer(null) }
@@ -52,7 +52,15 @@ export default function Generaciones() {
 
   async function handleDelete() {
     setSaving(true)
-    try { await q.deleteProyecto(confirm); setConfirm(null); setRefresh(r => r + 1) }
+    try {
+      const res = await q.getResumenProyecto(confirm)
+      if (res.porCobrar > 0) {
+        showErr({ title: 'Generación con deudas pendientes', body: `Esta generación tiene ${res.alumnos} ${res.alumnos === 1 ? 'alumno' : 'alumnos'} con un saldo total sin liquidar de ${fmt(res.porCobrar)}. Liquida todas las deudas antes de eliminar la generación.` })
+        setConfirm(null)
+        return
+      }
+      await q.deleteProyecto(confirm); setConfirm(null); setRefresh(r => r + 1)
+    }
     catch (e) { showErr(e) }
     finally { setSaving(false) }
   }

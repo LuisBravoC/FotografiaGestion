@@ -40,7 +40,7 @@ export default function AlumnoDetail() {
   const [confirmPago, setConfirmPago] = useState(null)   // id de pago a eliminar
   const [saving, setSaving] = useState(false)
   const [errModal, setErrModal] = useState(null)
-  const showErr = e => setErrModal(typeof e === 'string' ? { title: 'Aviso', body: e } : parseError(e))
+  const showErr = e => setErrModal(typeof e === 'string' ? { title: 'Aviso', body: e } : (e?.title ? e : parseError(e)))
   // — Menú liberar alumno
   const [liberarOpen, setLiberarOpen] = useState(false)
   const liberarRef = useRef(null)
@@ -196,7 +196,20 @@ export default function AlumnoDetail() {
             )}
             <StatusBadge status={alumno.estatus_pago} />
             <button className="btn-icon" title="Editar alumno" onClick={openEditAlumno}><Pencil size={16} /></button>
-            <button className="btn-icon danger" title="Eliminar alumno" onClick={() => setConfirmDel(true)}><Trash2 size={16} /></button>
+            <button
+              className="btn-icon danger"
+              title="Eliminar alumno"
+              onClick={() => {
+                if (saldo > 0) {
+                  setErrModal({
+                    title: 'Alumno con deuda pendiente',
+                    body: `${alumno.nombre_alumno} tiene un saldo sin liquidar de ${fmt(saldo)}. Usa el botón ⚡ Liberar para registrar el pago antes de eliminar al alumno.`,
+                  })
+                  return
+                }
+                setConfirmDel(true)
+              }}
+            ><Trash2 size={16} /></button>
           </div>
         </div>
 
@@ -328,11 +341,7 @@ export default function AlumnoDetail() {
       {/* ── Confirmaciones ───────────────────────── */}
       {confirmDel && (
         <ConfirmModal
-          message={
-            saldo > 0
-              ? `⚠️ ${alumno.nombre_alumno} tiene una deuda pendiente de ${fmt(saldo)}. ¿Eliminar igualmente al alumno y todos sus pagos?`
-              : `¿Eliminar a ${alumno.nombre_alumno} y todos sus pagos?`
-          }
+          message={`¿Eliminar a ${alumno.nombre_alumno} y todos sus pagos? Esta acción no se puede deshacer.`}
           onConfirm={handleDeleteAlumno} onCancel={() => setConfirmDel(false)} loading={saving}
         />
       )}

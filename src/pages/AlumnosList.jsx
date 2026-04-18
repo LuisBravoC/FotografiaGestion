@@ -33,7 +33,7 @@ export default function AlumnosList() {
   const [saving,  setSaving]  = useState(false)
   const [confirm,  setConfirm]  = useState(null)
   const [errModal,  setErrModal] = useState(null)
-  const showErr = e => setErrModal(typeof e === 'string' ? { title: 'Aviso', body: e } : parseError(e))
+  const showErr = e => setErrModal(typeof e === 'string' ? { title: 'Aviso', body: e } : (e?.title ? e : parseError(e)))
 
   const set  = (k, v) => setForm(f => ({ ...f, [k]: v }))
   const done = ()     => { setRefresh(r => r + 1); setDrawer(null) }
@@ -150,7 +150,16 @@ export default function AlumnosList() {
                           <WhatsAppBtn nombreTutor={a.nombre_tutor} nombreAlumno={a.nombre_alumno} telefono={a.telefono_contacto} saldo={Number(a.saldo_pendiente)} />
                         )}
                         <button className="btn-icon" title="Editar" onClick={e => openEdit(a, e)}><Pencil size={13} /></button>
-                        <button className="btn-icon danger" title="Eliminar" onClick={() => setConfirm(a.id)}><Trash2 size={13} /></button>
+                        <button className="btn-icon danger" title="Eliminar" onClick={() => {
+                          if (Number(a.saldo_pendiente) > 0) {
+                            setErrModal({
+                              title: 'Alumno con deuda pendiente',
+                              body: `${a.nombre_alumno} tiene un saldo sin liquidar de ${fmt(Number(a.saldo_pendiente))}. Liquida la deuda antes de eliminar al alumno.`,
+                            })
+                            return
+                          }
+                          setConfirm(a.id)
+                        }}><Trash2 size={13} /></button>
                       </div>
                     </td>
                   </tr>
