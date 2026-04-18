@@ -1,6 +1,7 @@
 ﻿import { useState } from 'react'
 import { Package, Pencil, Trash2, Plus, Check, Camera } from 'lucide-react'
 import { useQuery } from '../lib/useQuery.js'
+import { useToast } from '../lib/toast.jsx'
 import * as q from '../lib/queries.js'
 import Breadcrumbs from '../components/Breadcrumbs.jsx'
 import LoadingSpinner, { ErrorMsg } from '../components/LoadingSpinner.jsx'
@@ -38,9 +39,10 @@ export default function Ajustes() {
   const [confirm,  setConfirm]  = useState(null)
   const [errModal,  setErrModal] = useState(null)
   const showErr = e => setErrModal(typeof e === 'string' ? { title: 'Aviso', body: e } : parseError(e))
+  const toast = useToast()
 
   const set  = (k, v) => setForm(f => ({ ...f, [k]: v }))
-  const done = ()     => { setRefresh(r => r + 1); setDrawer(null) }
+  const done = (msg)  => { setRefresh(r => r + 1); setDrawer(null); if (msg) toast(msg) }
 
   function openCreate() { setForm(EMPTY); setDrawer({ mode: 'create' }) }
   function openEdit(p) {
@@ -56,14 +58,14 @@ export default function Ajustes() {
       const payload = { titulo: form.titulo.trim(), descripcion: form.descripcion.trim(), precio: Number(form.precio), que_incluye: form.que_incluye }
       if (drawer.mode === 'create') await q.insertPaquete(payload)
       else await q.updatePaquete(drawer.record.id, payload)
-      done()
+      done(drawer.mode === 'create' ? 'Paquete creado' : 'Paquete actualizado')
     } catch (e) { showErr(e) }
     finally { setSaving(false) }
   }
 
   async function handleDelete() {
     setSaving(true)
-    try { await q.deletePaquete(confirm); setConfirm(null); setRefresh(r => r + 1) }
+    try { await q.deletePaquete(confirm); toast('Paquete eliminado'); setConfirm(null); setRefresh(r => r + 1) }
     catch (e) { showErr(e) }
     finally { setSaving(false) }
   }

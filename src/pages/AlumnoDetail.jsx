@@ -2,6 +2,7 @@
 import { useNavigate, useParams } from 'react-router-dom'
 import { AlertCircle, CreditCard, Package, CheckCircle2, Phone, User, MessageSquare, Pencil, Trash2, Plus, Zap, PackageCheck } from 'lucide-react'
 import { useQuery } from '../lib/useQuery.js'
+import { useToast } from '../lib/toast.jsx'
 import * as q from '../lib/queries.js'
 import Breadcrumbs from '../components/Breadcrumbs.jsx'
 import StatusBadge from '../components/StatusBadge.jsx'
@@ -41,6 +42,7 @@ export default function AlumnoDetail() {
   const [saving, setSaving] = useState(false)
   const [errModal, setErrModal] = useState(null)
   const showErr = e => setErrModal(typeof e === 'string' ? { title: 'Aviso', body: e } : (e?.title ? e : parseError(e)))
+  const toast = useToast()
   // — Menú liberar alumno
   const [liberarOpen, setLiberarOpen] = useState(false)
   const liberarRef = useRef(null)
@@ -67,6 +69,7 @@ export default function AlumnoDetail() {
     setSaving(true)
     try {
       await q.updateAlumno(Number(alumnoId), { ...formA, paquete_id: Number(formA.paquete_id) })
+      toast('Datos del alumno actualizados')
       setDrawerA(false); setRefreshA(r => r + 1)
     } catch (e) { showErr(e) }
     finally { setSaving(false) }
@@ -85,6 +88,7 @@ export default function AlumnoDetail() {
     setSaving(true)
     try {
       await q.insertPago({ alumno_id: Number(alumnoId), monto: Number(formP.monto), fecha: formP.fecha, metodo_pago: formP.metodo_pago })
+      toast('Pago registrado')
       setDrawerP(false); setFormP({ monto: '', fecha: today(), metodo_pago: 'Efectivo' })
       setRefreshP(r => r + 1); setRefreshA(r => r + 1)
     } catch (e) { showErr(e) }
@@ -93,7 +97,7 @@ export default function AlumnoDetail() {
 
   async function handleDeletePago() {
     setSaving(true)
-    try { await q.deletePago(confirmPago); setConfirmPago(null); setRefreshP(r => r + 1); setRefreshA(r => r + 1) }
+    try { await q.deletePago(confirmPago); toast('Pago eliminado'); setConfirmPago(null); setRefreshP(r => r + 1); setRefreshA(r => r + 1) }
     catch (e) { showErr(e) }
     finally { setSaving(false) }
   }
@@ -113,6 +117,7 @@ export default function AlumnoDetail() {
       }
       setRefreshP(r => r + 1)
       setRefreshA(r => r + 1)
+      toast(conEntrega ? 'Alumno liberado y entregado' : 'Deuda liquidada')
     } catch (e) { showErr(e) }
     finally { setSaving(false) }
   }

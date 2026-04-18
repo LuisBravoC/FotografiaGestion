@@ -2,6 +2,7 @@
 import { useNavigate } from 'react-router-dom'
 import { Building2, MapPin, User, ArrowRight, Pencil, Trash2, Plus } from 'lucide-react'
 import { useQuery } from '../lib/useQuery.js'
+import { useToast } from '../lib/toast.jsx'
 import * as q from '../lib/queries.js'
 import Breadcrumbs from '../components/Breadcrumbs.jsx'
 import ProgressBar from '../components/ProgressBar.jsx'
@@ -29,9 +30,10 @@ export default function Instituciones() {
   const [confirm,  setConfirm]  = useState(null)
   const [errModal,  setErrModal] = useState(null)
   const showErr = e => setErrModal(typeof e === 'string' ? { title: 'Aviso', body: e } : (e?.title ? e : parseError(e)))
+  const toast = useToast()
 
   const set  = (k, v) => setForm(f => ({ ...f, [k]: v }))
-  const done = ()     => { setRefresh(r => r + 1); setDrawer(null) }
+  const done = (msg)  => { setRefresh(r => r + 1); setDrawer(null); if (msg) toast(msg) }
 
   function openCreate() { setForm(EMPTY); setDrawer({ mode: 'create' }) }
   function openEdit(inst, e) {
@@ -46,7 +48,7 @@ export default function Instituciones() {
     try {
       if (drawer.mode === 'create') await q.insertInstitucion(form)
       else await q.updateInstitucion(drawer.record.id, form)
-      done()
+      done(drawer.mode === 'create' ? 'Institución creada' : 'Institución actualizada')
     } catch (e) { showErr(e) }
     finally { setSaving(false) }
   }
@@ -60,7 +62,7 @@ export default function Instituciones() {
         setConfirm(null)
         return
       }
-      await q.deleteInstitucion(confirm); setConfirm(null); setRefresh(r => r + 1)
+      await q.deleteInstitucion(confirm); toast('Institución eliminada'); setConfirm(null); setRefresh(r => r + 1)
     }
     catch (e) { showErr(e) }
     finally { setSaving(false) }

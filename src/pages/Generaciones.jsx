@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { CalendarDays, ArrowRight, Pencil, Trash2, Plus } from 'lucide-react'
 import { useParams } from 'react-router-dom'
 import { useQuery } from '../lib/useQuery.js'
+import { useToast } from '../lib/toast.jsx'
 import * as q from '../lib/queries.js'
 import Breadcrumbs from '../components/Breadcrumbs.jsx'
 import ProgressBar from '../components/ProgressBar.jsx'
@@ -28,9 +29,10 @@ export default function Generaciones() {
   const [confirm,  setConfirm]  = useState(null)
   const [errModal,  setErrModal] = useState(null)
   const showErr = e => setErrModal(typeof e === 'string' ? { title: 'Aviso', body: e } : (e?.title ? e : parseError(e)))
+  const toast = useToast()
 
   const set  = (k, v) => setForm(f => ({ ...f, [k]: v }))
-  const done = ()     => { setRefresh(r => r + 1); setDrawer(null) }
+  const done = (msg)  => { setRefresh(r => r + 1); setDrawer(null); if (msg) toast(msg) }
 
   function openCreate() { setForm(EMPTY_PROY); setDrawer({ mode: 'create' }) }
   function openEdit(proy, e) {
@@ -45,7 +47,7 @@ export default function Generaciones() {
     try {
       if (drawer.mode === 'create') await q.insertProyecto({ ...form, institucion_id: Number(instId) })
       else await q.updateProyecto(drawer.record.id, form)
-      done()
+      done(drawer.mode === 'create' ? 'Generación creada' : 'Generación actualizada')
     } catch (e) { showErr(e) }
     finally { setSaving(false) }
   }
@@ -59,7 +61,7 @@ export default function Generaciones() {
         setConfirm(null)
         return
       }
-      await q.deleteProyecto(confirm); setConfirm(null); setRefresh(r => r + 1)
+      await q.deleteProyecto(confirm); toast('Generación eliminada'); setConfirm(null); setRefresh(r => r + 1)
     }
     catch (e) { showErr(e) }
     finally { setSaving(false) }

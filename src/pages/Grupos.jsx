@@ -2,6 +2,7 @@
 import { useNavigate, useParams } from 'react-router-dom'
 import { Users, Clock, ArrowRight, AlertCircle, Pencil, Trash2, Plus } from 'lucide-react'
 import { useQuery } from '../lib/useQuery.js'
+import { useToast } from '../lib/toast.jsx'
 import * as q from '../lib/queries.js'
 import Breadcrumbs from '../components/Breadcrumbs.jsx'
 import ProgressBar from '../components/ProgressBar.jsx'
@@ -28,9 +29,10 @@ export default function Grupos() {
   const [confirm,  setConfirm]  = useState(null)
   const [errModal,  setErrModal] = useState(null)
   const showErr = e => setErrModal(typeof e === 'string' ? { title: 'Aviso', body: e } : (e?.title ? e : parseError(e)))
+  const toast = useToast()
 
   const set  = (k, v) => setForm(f => ({ ...f, [k]: v }))
-  const done = ()     => { setRefresh(r => r + 1); setDrawer(null) }
+  const done = (msg)  => { setRefresh(r => r + 1); setDrawer(null); if (msg) toast(msg) }
 
   function openCreate() { setForm(EMPTY); setDrawer({ mode: 'create' }) }
   function openEdit(g, e) {
@@ -45,7 +47,7 @@ export default function Grupos() {
     try {
       if (drawer.mode === 'create') await q.insertGrupo({ ...form, proyecto_id: Number(proyId) })
       else await q.updateGrupo(drawer.record.id, form)
-      done()
+      done(drawer.mode === 'create' ? 'Grupo creado' : 'Grupo actualizado')
     } catch (e) { showErr(e) }
     finally { setSaving(false) }
   }
@@ -59,7 +61,7 @@ export default function Grupos() {
         setConfirm(null)
         return
       }
-      await q.deleteGrupo(confirm); setConfirm(null); setRefresh(r => r + 1)
+      await q.deleteGrupo(confirm); toast('Grupo eliminado'); setConfirm(null); setRefresh(r => r + 1)
     }
     catch (e) { showErr(e) }
     finally { setSaving(false) }

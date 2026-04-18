@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { ToastProvider } from './lib/toast.jsx'
 import Topbar from './components/Topbar.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import Instituciones from './pages/Instituciones.jsx'
@@ -10,6 +11,7 @@ import Ajustes from './pages/Ajustes.jsx'
 
 export default function App() {
   return (
+    <ToastProvider>
     <div className="app-shell">
       <Topbar />
       <main>
@@ -40,5 +42,6 @@ export default function App() {
         </Routes>
       </main>
     </div>
+    </ToastProvider>
   )
 }

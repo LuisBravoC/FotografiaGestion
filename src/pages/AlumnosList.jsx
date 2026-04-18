@@ -2,6 +2,7 @@
 import { useNavigate, useParams } from 'react-router-dom'
 import { Users, AlertCircle, Download, Pencil, Trash2, Plus } from 'lucide-react'
 import { useQuery } from '../lib/useQuery.js'
+import { useToast } from '../lib/toast.jsx'
 import * as q from '../lib/queries.js'
 import Breadcrumbs from '../components/Breadcrumbs.jsx'
 import StatusBadge from '../components/StatusBadge.jsx'
@@ -34,9 +35,10 @@ export default function AlumnosList() {
   const [confirm,  setConfirm]  = useState(null)
   const [errModal,  setErrModal] = useState(null)
   const showErr = e => setErrModal(typeof e === 'string' ? { title: 'Aviso', body: e } : (e?.title ? e : parseError(e)))
+  const toast = useToast()
 
   const set  = (k, v) => setForm(f => ({ ...f, [k]: v }))
-  const done = ()     => { setRefresh(r => r + 1); setDrawer(null) }
+  const done = (msg)  => { setRefresh(r => r + 1); setDrawer(null); if (msg) toast(msg) }
 
   function openCreate() {
     const defPaq = (paqQ.data ?? [])[0]?.id ?? ''
@@ -57,14 +59,14 @@ export default function AlumnosList() {
       const payload = { ...form, paquete_id: Number(form.paquete_id) }
       if (drawer.mode === 'create') await q.insertAlumno({ ...payload, grupo_id: Number(grupoId) })
       else await q.updateAlumno(drawer.record.id, payload)
-      done()
+      done(drawer.mode === 'create' ? 'Alumno agregado' : 'Alumno actualizado')
     } catch (e) { showErr(e) }
     finally { setSaving(false) }
   }
 
   async function handleDelete() {
     setSaving(true)
-    try { await q.deleteAlumno(confirm); setConfirm(null); setRefresh(r => r + 1) }
+    try { await q.deleteAlumno(confirm); toast('Alumno eliminado'); setConfirm(null); setRefresh(r => r + 1) }
     catch (e) { showErr(e) }
     finally { setSaving(false) }
   }
