@@ -35,6 +35,43 @@ export async function getInstituciones() {
   return check(await supabase.from('instituciones').select('*').order('nombre'), 'getInstituciones')
 }
 
+/**
+ * Trae instituciones + resumen financiero activo en 2 queries paralelas
+ * en lugar de 1 + N queries (N = número de instituciones).
+ */
+export async function getInstitucionesConResumen() {
+  const [instituciones, grupos, filas] = await Promise.all([
+    supabase.from('instituciones').select('*').order('nombre'),
+    supabase.from('grupos').select('id, proyecto:proyectos(institucion_id)'),
+    supabase.from('vista_saldo_alumnos').select('grupo_id, precio_paquete, total_pagado, saldo_pendiente'),
+  ])
+  check(instituciones, 'getInstitucionesConResumen:instituciones')
+  check(grupos,        'getInstitucionesConResumen:grupos')
+  check(filas,         'getInstitucionesConResumen:filas')
+
+  // Mapa grupo_id → institucion_id
+  const grupoInstMap = {}
+  for (const g of grupos.data) {
+    grupoInstMap[g.id] = g.proyecto?.institucion_id
+  }
+
+  // Agrupar resúmenes por institucion_id
+  const resumenMap = {}
+  for (const r of filas.data) {
+    const instId = grupoInstMap[r.grupo_id]
+    if (!instId) continue
+    if (!resumenMap[instId]) resumenMap[instId] = { totalEsperado: 0, totalCobrado: 0, porCobrar: 0 }
+    resumenMap[instId].totalEsperado += Number(r.precio_paquete)  || 0
+    resumenMap[instId].totalCobrado  += Number(r.total_pagado)    || 0
+    resumenMap[instId].porCobrar     += Number(r.saldo_pendiente) || 0
+  }
+
+  return instituciones.data.map(inst => ({
+    ...inst,
+    resumen: resumenMap[inst.id] ?? { totalEsperado: 0, totalCobrado: 0, porCobrar: 0 },
+  }))
+}
+
 export async function getInstitucion(id) {
   return check(
     await supabase.from('instituciones').select('*').eq('id', id).single()

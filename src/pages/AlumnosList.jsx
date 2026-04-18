@@ -1,6 +1,6 @@
 ﻿import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Users, AlertCircle, Download, Pencil, Trash2, Plus } from 'lucide-react'
+import { Users, AlertCircle, Download, Pencil, Trash2, Plus, ChevronUp, ChevronDown } from 'lucide-react'
 import { useQuery } from '../lib/useQuery.js'
 import { useToast } from '../lib/toast.jsx'
 import { fmt } from '../lib/formatters.js'
@@ -35,6 +35,13 @@ export default function AlumnosList() {
   const [errModal,  setErrModal] = useState(null)
   const [filtroPago,     setFiltroPago]     = useState('todos')
   const [filtroEntrega,  setFiltroEntrega]  = useState('todos')
+  const [sortCol,        setSortCol]        = useState('nombre_alumno')
+  const [sortDir,        setSortDir]        = useState('asc')
+
+  function toggleSort(col) {
+    if (sortCol === col) setSortDir(d => d === 'asc' ? 'desc' : 'asc')
+    else { setSortCol(col); setSortDir('asc') }
+  }
   const showErr = e => setErrModal(typeof e === 'string' ? { title: 'Aviso', body: e } : (e?.title ? e : parseError(e)))
   const toast = useToast()
 
@@ -94,6 +101,16 @@ export default function AlumnosList() {
   const filtrados = miembros
     .filter(a => filtroPago    === 'todos' || a.estatus_pago     === filtroPago)
     .filter(a => filtroEntrega === 'todos' || a.estatus_entrega  === filtroEntrega)
+    .sort((a, b) => {
+      let va = a[sortCol], vb = b[sortCol]
+      if (typeof va === 'string') va = va.toLowerCase()
+      if (typeof vb === 'string') vb = vb.toLowerCase()
+      if (va == null) va = ''
+      if (vb == null) vb = ''
+      if (va < vb) return sortDir === 'asc' ? -1 : 1
+      if (va > vb) return sortDir === 'asc' ?  1 : -1
+      return 0
+    })
 
   const crumbs = [
     { label: 'Dashboard', to: '/' },
@@ -166,9 +183,26 @@ export default function AlumnosList() {
             <table>
               <thead>
                 <tr>
-                  <th>Alumno</th><th>Tutor</th><th>Paquete</th>
-                  <th>Precio</th><th>Pagado</th><th>Saldo</th>
-                  <th>Estatus</th><th>Entrega</th><th></th>
+                  {[
+                    { label: 'Alumno',   col: 'nombre_alumno' },
+                    { label: 'Tutor',    col: 'nombre_tutor' },
+                    { label: 'Paquete',  col: 'paquete_titulo' },
+                    { label: 'Precio',   col: 'precio_paquete' },
+                    { label: 'Pagado',   col: 'total_pagado' },
+                    { label: 'Saldo',    col: 'saldo_pendiente' },
+                    { label: 'Estatus',  col: 'estatus_pago' },
+                    { label: 'Entrega',  col: 'estatus_entrega' },
+                  ].map(({ label, col }) => (
+                    <th key={col} className="th-sortable" onClick={() => toggleSort(col)}>
+                      {label}
+                      <span className="sort-icon">
+                        {sortCol === col
+                          ? sortDir === 'asc' ? <ChevronUp size={13} /> : <ChevronDown size={13} />
+                          : <ChevronUp size={13} className="sort-icon-idle" />}
+                      </span>
+                    </th>
+                  ))}
+                  <th></th>
                 </tr>
               </thead>
               <tbody>

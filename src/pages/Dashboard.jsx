@@ -9,7 +9,7 @@ import LoadingSpinner, { ErrorMsg } from '../components/LoadingSpinner.jsx'
 
 export default function Dashboard() {
   const global = useQuery(() => q.getResumenGlobal(), [])
-  const insts  = useQuery(() => q.getInstituciones(), [])
+  const insts  = useQuery(() => q.getInstitucionesConResumen(), [])
 
   if (global.loading || insts.loading) return <LoadingSpinner text="Cargando dashboard…" />
   if (global.error) return <ErrorMsg message={global.error} />
@@ -45,16 +45,15 @@ export default function Dashboard() {
       <p className="section-heading">Instituciones — resumen activo</p>
       <div className="grid grid-auto">
         {insts.data.map(inst => (
-          <InstCard key={inst.id} inst={inst} />
+          <InstCard key={inst.id} inst={inst} resumen={inst.resumen} />
         ))}
       </div>
     </div>
   )
 }
 
-function InstCard({ inst }) {
-  const { data, loading } = useQuery(() => q.getResumenInstitucion(inst.id), [inst.id])
-  const res = data ?? { totalEsperado: 0, totalCobrado: 0, porCobrar: 0 }
+function InstCard({ inst, resumen }) {
+  const res = resumen ?? { totalEsperado: 0, totalCobrado: 0, porCobrar: 0 }
 
   return (
     <Link to={`/instituciones/${inst.id}`} className="card card-link">
@@ -65,16 +64,11 @@ function InstCard({ inst }) {
         </div>
         <Building2 size={20} className="card-icon" />
       </div>
-      {loading
-        ? <div style={{ height: 30, background: 'var(--border)', borderRadius: 4, marginTop: 8, animation: 'pulse 1.5s infinite' }} />
-        : <>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.82rem', color: 'var(--text-muted)', margin: '.5rem 0 .25rem' }}>
-              <span>Cobrado: <strong style={{ color: 'var(--liquidado)' }}>{fmt(res.totalCobrado)}</strong></span>
-              <span>Falta: <strong style={{ color: 'var(--abonado)' }}>{fmt(res.porCobrar)}</strong></span>
-            </div>
-            <ProgressBar value={res.totalCobrado} max={res.totalEsperado} />
-          </>
-      }
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.82rem', color: 'var(--text-muted)', margin: '.5rem 0 .25rem' }}>
+        <span>Cobrado: <strong style={{ color: 'var(--liquidado)' }}>{fmt(res.totalCobrado)}</strong></span>
+        <span>Falta: <strong style={{ color: 'var(--abonado)' }}>{fmt(res.porCobrar)}</strong></span>
+      </div>
+      <ProgressBar value={res.totalCobrado} max={res.totalEsperado} />
       <div style={{ marginTop: '.75rem', display: 'flex', justifyContent: 'flex-end' }}>
         <span style={{ fontSize: '.8rem', color: 'var(--accent-light)', display: 'flex', alignItems: 'center', gap: '.2rem' }}>
           Ver detalle <ArrowRight size={13} />
