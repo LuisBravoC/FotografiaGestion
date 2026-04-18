@@ -1,5 +1,5 @@
 ﻿import { useState } from 'react'
-import { Settings, Pencil, Trash2, Plus, CheckCircle2 } from 'lucide-react'
+import { Package, Pencil, Trash2, Plus, Check, Camera } from 'lucide-react'
 import { useQuery } from '../lib/useQuery.js'
 import * as q from '../lib/queries.js'
 import Breadcrumbs from '../components/Breadcrumbs.jsx'
@@ -14,7 +14,16 @@ const EMPTY = { titulo: '', descripcion: '', precio: '', que_incluye: [] }
 
 const crumbs = [
   { label: 'Dashboard', to: '/' },
-  { label: 'Ajustes' },
+  { label: 'Paquetes' },
+]
+
+// Paleta de acentos para las tarjetas (cicla por índice)
+const CARD_ACCENTS = [
+  { bg: 'rgba(99,102,241,.12)',  border: 'rgba(99,102,241,.35)',  text: '#a5b4fc' },
+  { bg: 'rgba(34,197,94,.1)',    border: 'rgba(34,197,94,.3)',    text: '#86efac' },
+  { bg: 'rgba(245,158,11,.1)',   border: 'rgba(245,158,11,.3)',   text: '#fcd34d' },
+  { bg: 'rgba(236,72,153,.1)',   border: 'rgba(236,72,153,.3)',   text: '#f9a8d4' },
+  { bg: 'rgba(20,184,166,.1)',   border: 'rgba(20,184,166,.3)',   text: '#5eead4' },
 ]
 
 export default function Ajustes() {
@@ -25,13 +34,9 @@ export default function Ajustes() {
   const [form,    setForm]    = useState(EMPTY)
   const [saving,  setSaving]  = useState(false)
   const [confirm, setConfirm] = useState(null)
-  const [toast,   setToast]   = useState(false)
 
   const set  = (k, v) => setForm(f => ({ ...f, [k]: v }))
-  const done = ()     => {
-    setRefresh(r => r + 1); setDrawer(null)
-    setToast(true); setTimeout(() => setToast(false), 3000)
-  }
+  const done = ()     => { setRefresh(r => r + 1); setDrawer(null) }
 
   function openCreate() { setForm(EMPTY); setDrawer({ mode: 'create' }) }
   function openEdit(p) {
@@ -62,50 +67,81 @@ export default function Ajustes() {
   if (loading) return <><Breadcrumbs crumbs={crumbs} /><LoadingSpinner text="Cargando paquetes…" /></>
   if (error)   return <ErrorMsg message={error} />
 
+  const paquetes = data ?? []
+
   return (
     <>
       <Breadcrumbs crumbs={crumbs} />
       <div className="page">
+
+        {/* ── Encabezado ───────────────────────────────────── */}
         <div className="page-title-row">
-          <h1 className="page-title" style={{ margin: 0 }}><Settings size={22} /> Ajustes — Paquetes</h1>
-          <button className="btn btn-primary" onClick={openCreate}><Plus size={15} /> Nuevo paquete</button>
+          <div>
+            <h1 className="page-title" style={{ margin: 0 }}>
+              <Camera size={22} /> Catálogo de Paquetes
+            </h1>
+            <p style={{ margin: '.3rem 0 0', fontSize: '.85rem', color: 'var(--text-muted)' }}>
+              {paquetes.length} {paquetes.length === 1 ? 'paquete disponible' : 'paquetes disponibles'}
+            </p>
+          </div>
+          <button className="btn btn-primary" onClick={openCreate}>
+            <Plus size={15} /> Nuevo paquete
+          </button>
         </div>
 
-        {toast && (
-          <div className="ajustes-toast" style={{ marginBottom: '1.25rem' }}>
-            <CheckCircle2 size={16} /> Cambios guardados correctamente
-          </div>
-        )}
+        {/* ── Tarjetas ─────────────────────────────────────── */}
+        <div className="paq-grid">
+          {paquetes.map((p, i) => {
+            const accent = CARD_ACCENTS[i % CARD_ACCENTS.length]
+            return (
+              <div key={p.id} className="paq-card">
 
-        <div className="grid grid-auto">
-          {(data ?? []).map(p => (
-            <div key={p.id} className="card">
-              <div className="card-header">
-                <div>
-                  <div className="card-title">{p.titulo}</div>
-                  <div className="card-sub" style={{ marginTop: '.2rem' }}>{fmt(p.precio)}</div>
+                {/* cabecera coloreada */}
+                <div className="paq-card-head" style={{ background: accent.bg, borderBottom: `1px solid ${accent.border}` }}>
+                  <div className="paq-card-icon" style={{ background: accent.border }}>
+                    <Package size={18} style={{ color: accent.text }} />
+                  </div>
+                  <div className="card-actions" style={{ marginLeft: 'auto' }}>
+                    <button className="btn-icon" title="Editar" onClick={() => openEdit(p)}><Pencil size={14} /></button>
+                    <button className="btn-icon danger" title="Eliminar" onClick={() => setConfirm(p.id)}><Trash2 size={14} /></button>
+                  </div>
                 </div>
-                <div className="card-actions">
-                  <button className="btn-icon" title="Editar" onClick={() => openEdit(p)}><Pencil size={14} /></button>
-                  <button className="btn-icon danger" title="Eliminar" onClick={() => setConfirm(p.id)}><Trash2 size={14} /></button>
+
+                {/* cuerpo */}
+                <div className="paq-card-body">
+                  <div className="paq-card-titulo">{p.titulo}</div>
+                  <div className="paq-card-precio" style={{ color: accent.text }}>{fmt(p.precio)}</div>
+                  {p.descripcion && (
+                    <p className="paq-card-desc">{p.descripcion}</p>
+                  )}
+
+                  {(p.que_incluye ?? []).length > 0 && (
+                    <ul className="paq-incluye">
+                      {p.que_incluye.map((item, j) => (
+                        <li key={j}>
+                          <span className="paq-check" style={{ color: accent.text }}><Check size={12} strokeWidth={3} /></span>
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
+
               </div>
-              {p.descripcion && <p style={{ fontSize: '.83rem', color: 'var(--text-muted)', margin: '.5rem 0' }}>{p.descripcion}</p>}
-              {(p.que_incluye ?? []).length > 0 && (
-                <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '.25rem', marginTop: '.5rem' }}>
-                  {p.que_incluye.map((item, i) => (
-                    <li key={i} style={{ fontSize: '.82rem', color: 'var(--liquidado)', display: 'flex', alignItems: 'center', gap: '.4rem' }}>
-                      <span style={{ opacity: .6 }}>✓</span> {item}
-                    </li>
-                  ))}
-                </ul>
-              )}
+            )
+          })}
+
+          {paquetes.length === 0 && (
+            <div className="paq-empty">
+              <Package size={40} style={{ opacity: .25 }} />
+              <p>Sin paquetes. Crea el primero.</p>
+              <button className="btn btn-primary" onClick={openCreate}><Plus size={14} /> Crear paquete</button>
             </div>
-          ))}
-          {(data ?? []).length === 0 && <p className="empty">Sin paquetes. Crea el primero.</p>}
+          )}
         </div>
       </div>
 
+      {/* ── Drawer ────────────────────────────────────────── */}
       {drawer && (
         <Drawer
           title={drawer.mode === 'create' ? 'Nuevo paquete' : 'Editar paquete'}
@@ -127,6 +163,7 @@ export default function Ajustes() {
         </Drawer>
       )}
 
+      {/* ── Confirmación eliminar ─────────────────────────── */}
       {confirm !== null && (
         <ConfirmModal
           message="¿Eliminar este paquete? Asegúrate de que ningún alumno lo tenga asignado."

@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom'
-import { Camera, Search, X, Settings } from 'lucide-react'
+import { Link, NavLink } from 'react-router-dom'
+import { Camera, Search, X, Settings, Building2, Package, BookImage } from 'lucide-react'
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { buscarAlumnos } from '../lib/queries.js'
 
@@ -83,10 +83,22 @@ export default function Topbar() {
           </div>
         )}
       </div>
-
+      
+      {/*
       <Link to="/ajustes" className="topbar-icon-btn" title="Ajustes">
         <Settings size={18} />
       </Link>
+      */}
+
+      <nav className="topbar-nav">
+        <NavLink to="/instituciones" className={({ isActive }) => 'topbar-nav-link' + (isActive ? ' active' : '')}>
+          <Building2 size={15} /> Instituciones
+        </NavLink>
+        <NavLink to="/ajustes" className={({ isActive }) => 'topbar-nav-link' + (isActive ? ' active' : '')}>
+          <BookImage size={15} /> Paquetes
+        </NavLink>
+      </nav>
+
     </header>
   )
 }
