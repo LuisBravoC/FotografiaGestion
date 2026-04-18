@@ -263,6 +263,67 @@ tbody tr:last-child { border-bottom: none; }
 .alumno-info h2 { font-size: 1.3rem; }
 .alumno-info p  { color: var(--text-muted); font-size: .85rem; }
 
+/* ── Botón acción rápida Liberar ─────────────────────────────────────────── */
+.liberar-wrap {
+  position: relative;
+}
+.liberar-btn {
+  background: rgba(245,158,11,.12);
+  border: 1px solid rgba(245,158,11,.4);
+  color: #fbbf24;
+  font-size: .82rem;
+  padding: .35rem .75rem;
+  gap: .35rem;
+  border-radius: .5rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+  transition: background .15s, border-color .15s;
+}
+.liberar-btn:hover { background: rgba(245,158,11,.22); border-color: rgba(245,158,11,.6); }
+.liberar-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+.liberar-menu {
+  position: absolute;
+  top: calc(100% + .5rem);
+  right: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: .75rem;
+  box-shadow: 0 12px 40px rgba(0,0,0,.5);
+  min-width: 240px;
+  z-index: 250;
+  overflow: hidden;
+  animation: scaleIn .15s cubic-bezier(.32,.72,0,1);
+  transform-origin: top right;
+}
+
+.liberar-opt {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: .75rem;
+  padding: .85rem 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text);
+  text-align: left;
+  transition: background .15s;
+  border-bottom: 1px solid var(--border);
+}
+.liberar-opt:last-child { border-bottom: none; }
+.liberar-opt:hover { background: var(--bg-hover); }
+.liberar-opt svg { flex-shrink: 0; margin-top: .15rem; color: var(--text-muted); }
+
+.liberar-opt--green:hover { background: rgba(34,197,94,.08); }
+.liberar-opt--green svg   { color: var(--liquidado); }
+.liberar-opt--green .liberar-opt-title { color: var(--liquidado); }
+
+.liberar-opt-title { font-size: .88rem; font-weight: 600; margin-bottom: .15rem; }
+.liberar-opt-sub   { font-size: .78rem; color: var(--text-muted); line-height: 1.4; }
+
 .saldo-box {
   background: var(--bg-card);
   border: 1px solid var(--border);

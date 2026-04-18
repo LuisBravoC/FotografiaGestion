@@ -1,6 +1,6 @@
-﻿import { useState } from 'react'
+﻿import { useState, useRef, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { AlertCircle, CreditCard, Package, CheckCircle2, Phone, User, MessageSquare, Pencil, Trash2, Plus } from 'lucide-react'
+import { AlertCircle, CreditCard, Package, CheckCircle2, Phone, User, MessageSquare, Pencil, Trash2, Plus, Zap, PackageCheck } from 'lucide-react'
 import { useQuery } from '../lib/useQuery.js'
 import * as q from '../lib/queries.js'
 import Breadcrumbs from '../components/Breadcrumbs.jsx'
@@ -37,6 +37,17 @@ export default function AlumnoDetail() {
   const [confirmDel,  setConfirmDel]  = useState(false)  // eliminar alumno
   const [confirmPago, setConfirmPago] = useState(null)   // id de pago a eliminar
   const [saving, setSaving] = useState(false)
+  // — Menú liberar alumno
+  const [liberarOpen, setLiberarOpen] = useState(false)
+  const liberarRef = useRef(null)
+
+  useEffect(() => {
+    function onOutside(e) {
+      if (liberarRef.current && !liberarRef.current.contains(e.target)) setLiberarOpen(false)
+    }
+    document.addEventListener('mousedown', onOutside)
+    return () => document.removeEventListener('mousedown', onOutside)
+  }, [])
 
   const setA = (k, v) => setFormA(f => ({ ...f, [k]: v }))
   const setP = (k, v) => setFormP(f => ({ ...f, [k]: v }))
@@ -83,6 +94,25 @@ export default function AlumnoDetail() {
     finally { setSaving(false) }
   }
 
+  // conEntrega=false → solo liquida | conEntrega=true → liquida + marca Entregado
+  async function handleLiberar(conEntrega) {
+    setLiberarOpen(false)
+    setSaving(true)
+    try {
+      const alumnoActual = alumnoQ.data
+      const saldoActual  = Number(alumnoActual.saldo_pendiente)
+      if (saldoActual > 0) {
+        await q.insertPago({ alumno_id: Number(alumnoId), monto: saldoActual, fecha: today(), metodo_pago: 'Efectivo' })
+      }
+      if (conEntrega) {
+        await q.updateAlumno(Number(alumnoId), { estatus_entrega: 'Entregado' })
+      }
+      setRefreshP(r => r + 1)
+      setRefreshA(r => r + 1)
+    } catch (e) { alert('Error: ' + (e.message ?? e)) }
+    finally { setSaving(false) }
+  }
+
   if (instQ.loading || proyQ.loading || grupoQ.loading || alumnoQ.loading) return <LoadingSpinner text="Cargando alumno…" />
   if (alumnoQ.error) return <ErrorMsg message={alumnoQ.error} />
   if (!instQ.data || !proyQ.data || !grupoQ.data || !alumnoQ.data) return <NotFound />
@@ -105,6 +135,8 @@ export default function AlumnoDetail() {
     { label: alumno.nombre_alumno },
   ]
 
+  const alumnoYaListo = saldo === 0 && alumno.estatus_entrega === 'Entregado'
+
   return (
     <>
       <Breadcrumbs crumbs={crumbs} />
@@ -118,6 +150,46 @@ export default function AlumnoDetail() {
             <p>{inst.nombre} · Gen {proy.año_ciclo} · {grupo.nombre_grupo}</p>
           </div>
           <div style={{ display: 'flex', gap: '.5rem', alignItems: 'center' }}>
+            {/* ── Botón acción rápida Liberar ────── */}
+            {!alumnoYaListo && (
+              <div className="liberar-wrap" ref={liberarRef}>
+                <button
+                  className="btn liberar-btn"
+                  onClick={() => setLiberarOpen(o => !o)}
+                  disabled={saving}
+                  title="Acciones rápidas"
+                >
+                  <Zap size={14} />
+                  Liberar
+                </button>
+                {liberarOpen && (
+                  <div className="liberar-menu">
+                    {saldo > 0 && (
+                      <button className="liberar-opt" onClick={() => handleLiberar(false)}>
+                        <CreditCard size={15} />
+                        <div>
+                          <div className="liberar-opt-title">Liquidar deuda</div>
+                          <div className="liberar-opt-sub">Registra pago de {fmt(saldo)} restante</div>
+                        </div>
+                      </button>
+                    )}
+                    <button className="liberar-opt liberar-opt--green" onClick={() => handleLiberar(true)}>
+                      <PackageCheck size={15} />
+                      <div>
+                        <div className="liberar-opt-title">
+                          {saldo > 0 ? 'Liquidar y entregar' : 'Marcar como entregado'}
+                        </div>
+                        <div className="liberar-opt-sub">
+                          {saldo > 0
+                            ? `Liquida ${fmt(saldo)} y marca como Entregado`
+                            : 'Cambia estatus a Entregado'}
+                        </div>
+                      </div>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
             <StatusBadge status={alumno.estatus_pago} />
             <button className="btn-icon" title="Editar alumno" onClick={openEditAlumno}><Pencil size={16} /></button>
             <button className="btn-icon danger" title="Eliminar alumno" onClick={() => setConfirmDel(true)}><Trash2 size={16} /></button>
