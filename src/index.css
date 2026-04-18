@@ -590,6 +590,15 @@ tbody tr:last-child { border-bottom: none; }
   .breadcrumbs { padding: .7rem 1rem .1rem; }
   .saldo-box { gap: 1rem; }
   .grid-stats{ grid-template-columns: 1fr 1fr; }
+
+  /* En móvil, el menú debe abrirse hacia la derecha del botón para no salir del viewport */
+  .liberar-menu {
+    left: 0;
+    right: auto;
+    width: min(92vw, 320px);
+    min-width: 0;
+    transform-origin: top left;
+  }
 }
 
 /* ── WhatsApp button ──────────────────────────────────────────────────────── */
