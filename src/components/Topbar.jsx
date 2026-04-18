@@ -1,5 +1,5 @@
 import { Link, NavLink } from 'react-router-dom'
-import { Camera, Search, X, Settings, Building2, Package, BookImage } from 'lucide-react'
+import { Camera, Search, X, Settings, Building2, Package, BookImage, AlertCircle } from 'lucide-react'
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { buscarAlumnos } from '../lib/queries.js'
 
@@ -102,6 +102,9 @@ export default function Topbar() {
       */}
 
       <nav className="topbar-nav">
+        <NavLink to="/deudas" className={({ isActive }) => 'topbar-nav-link' + (isActive ? ' active' : '')}>
+          <AlertCircle size={15} /> <span className="nav-label">Deudas</span>
+        </NavLink>
         <NavLink to="/instituciones" className={({ isActive }) => 'topbar-nav-link' + (isActive ? ' active' : '')}>
           <Building2 size={15} /> <span className="nav-label">Instituciones</span>
         </NavLink>

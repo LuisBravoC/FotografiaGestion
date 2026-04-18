@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Building2, ArrowRight, Activity } from 'lucide-react'
+import { Building2, ArrowRight, Activity, AlertCircle } from 'lucide-react'
 import { useQuery } from '../lib/useQuery.js'
 import * as q from '../lib/queries.js'
 import { fmt } from '../lib/formatters.js'
@@ -30,10 +30,13 @@ export default function Dashboard() {
           <div className="stat-value cobrado">{fmt(g.totalCobrado)}</div>
           <div className="stat-label">Total cobrado</div>
         </div>
-        <div className="card stat-card">
+        <Link to="/deudas" className="card stat-card" style={{ textDecoration: 'none', color: 'inherit' }}>
           <div className="stat-value por-cobrar">{fmt(g.porCobrar)}</div>
           <div className="stat-label">Por cobrar</div>
-        </div>
+          <div style={{ marginTop: '.5rem', fontSize: '.75rem', color: 'var(--abonado)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '.2rem' }}>
+            <AlertCircle size={11} /> Ver deudas
+          </div>
+        </Link>
         <div className="card stat-card">
           <div className="stat-value" style={{ color: 'var(--accent-light)' }}>{g.activos}</div>
           <div className="stat-label">Proyectos activos</div>

@@ -284,6 +284,51 @@ export async function getResumenGlobal() {
 }
 
 // =============================================================================
+// DEUDAS PENDIENTES
+// =============================================================================
+
+/**
+ * Devuelve todos los alumnos con saldo_pendiente > 0 junto con la ruta completa
+ * (institucion → proyecto → grupo) para poder navegar directamente al alumno.
+ */
+export async function getAlumnosConDeuda() {
+  const [filas, grupos, proyectos, instituciones] = await Promise.all([
+    supabase
+      .from('vista_saldo_alumnos')
+      .select('id, nombre_alumno, nombre_tutor, paquete_titulo, precio_paquete, total_pagado, saldo_pendiente, estatus_pago, grupo_id, telefono_contacto')
+      .gt('saldo_pendiente', 0)
+      .order('saldo_pendiente', { ascending: false }),
+    supabase.from('grupos').select('id, nombre_grupo, proyecto_id'),
+    supabase.from('proyectos').select('id, año_ciclo, estatus, institucion_id'),
+    supabase.from('instituciones').select('id, nombre'),
+  ])
+  check(filas,          'getAlumnosConDeuda:filas')
+  check(grupos,         'getAlumnosConDeuda:grupos')
+  check(proyectos,      'getAlumnosConDeuda:proyectos')
+  check(instituciones,  'getAlumnosConDeuda:instituciones')
+
+  const grupoMap  = Object.fromEntries(grupos.data.map(g  => [g.id,  g]))
+  const proyMap   = Object.fromEntries(proyectos.data.map(p => [p.id, p]))
+  const instMap   = Object.fromEntries(instituciones.data.map(i => [i.id, i]))
+
+  return filas.data.map(a => {
+    const grupo = grupoMap[a.grupo_id]     ?? {}
+    const proy  = proyMap[grupo.proyecto_id] ?? {}
+    const inst  = instMap[proy.institucion_id] ?? {}
+    return {
+      ...a,
+      nombre_grupo:   grupo.nombre_grupo ?? '—',
+      año_ciclo:      proy.año_ciclo     ?? '—',
+      estatus_proy:   proy.estatus       ?? '—',
+      nombre_inst:    inst.nombre        ?? '—',
+      inst_id:        inst.id,
+      proy_id:        proy.id,
+      grupo_id_real:  grupo.id,
+    }
+  })
+}
+
+// =============================================================================
 // MUTACIONES — CREATE / UPDATE / DELETE
 // =============================================================================
 
