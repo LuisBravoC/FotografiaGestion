@@ -2,6 +2,7 @@
 import { Package, Pencil, Trash2, Plus, Check, Camera } from 'lucide-react'
 import { useQuery } from '../lib/useQuery.js'
 import { useToast } from '../lib/toast.jsx'
+import { fmt } from '../lib/formatters.js'
 import * as q from '../lib/queries.js'
 import Breadcrumbs from '../components/Breadcrumbs.jsx'
 import LoadingSpinner, { ErrorMsg } from '../components/LoadingSpinner.jsx'
@@ -11,7 +12,6 @@ import ErrorModal from '../components/ErrorModal.jsx'
 import { parseError } from '../lib/parseError.js'
 import TagsInput from '../components/TagsInput.jsx'
 
-const fmt = n => Number(n).toLocaleString('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 })
 
 const EMPTY = { titulo: '', descripcion: '', precio: '', que_incluye: [] }
 

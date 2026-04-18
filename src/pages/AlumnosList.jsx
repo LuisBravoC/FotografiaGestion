@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { Users, AlertCircle, Download, Pencil, Trash2, Plus } from 'lucide-react'
 import { useQuery } from '../lib/useQuery.js'
 import { useToast } from '../lib/toast.jsx'
+import { fmt } from '../lib/formatters.js'
 import * as q from '../lib/queries.js'
 import Breadcrumbs from '../components/Breadcrumbs.jsx'
 import StatusBadge from '../components/StatusBadge.jsx'
@@ -14,7 +15,6 @@ import ConfirmModal from '../components/ConfirmModal.jsx'
 import ErrorModal from '../components/ErrorModal.jsx'
 import { parseError } from '../lib/parseError.js'
 
-const fmt = n => Number(n).toLocaleString('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 })
 const EMPTY = { nombre_alumno: '', nombre_tutor: '', telefono_contacto: '', paquete_id: '', estatus_entrega: 'Pendiente', comentarios: '' }
 
 export default function AlumnosList() {
@@ -26,7 +26,6 @@ export default function AlumnosList() {
   const proyQ    = useQuery(() => q.getProyecto(Number(proyId)), [proyId])
   const grupoQ   = useQuery(() => q.getGrupo(Number(grupoId)), [grupoId])
   const alumnosQ = useQuery(() => q.getAlumnosByGrupo(Number(grupoId)), [grupoId, refresh])
-  const resumenQ = useQuery(() => q.getResumenGrupo(Number(grupoId)), [grupoId, refresh])
   const paqQ     = useQuery(() => q.getPaquetes(), [])
 
   const [drawer,  setDrawer]  = useState(null)
@@ -82,8 +81,15 @@ export default function AlumnosList() {
   const proy     = proyQ.data
   const grupo    = grupoQ.data
   const miembros = alumnosQ.data ?? []
-  const resumen  = resumenQ.data ?? { miembros: 0, totalEsperado: 0, totalCobrado: 0, porCobrar: 0 }
   const paquetes = paqQ.data ?? []
+
+  const resumen = miembros.reduce((acc, a) => {
+    acc.miembros++
+    acc.totalEsperado += Number(a.precio_paquete) || 0
+    acc.totalCobrado  += Number(a.total_pagado)   || 0
+    acc.porCobrar     += Number(a.saldo_pendiente) || 0
+    return acc
+  }, { miembros: 0, totalEsperado: 0, totalCobrado: 0, porCobrar: 0 })
 
   const filtrados = miembros
     .filter(a => filtroPago    === 'todos' || a.estatus_pago     === filtroPago)

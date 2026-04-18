@@ -1,6 +1,5 @@
 import { MessageCircle } from 'lucide-react'
-
-const fmt = n => n.toLocaleString('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 })
+import { fmt } from '../lib/formatters.js'
 
 /**
  * Props:

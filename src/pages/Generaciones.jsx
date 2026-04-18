@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { CalendarDays, ArrowRight, Pencil, Trash2, Plus } from 'lucide-react'
 import { useParams } from 'react-router-dom'
 import { useQuery } from '../lib/useQuery.js'
+import { fmt } from '../lib/formatters.js'
 import { useToast } from '../lib/toast.jsx'
 import * as q from '../lib/queries.js'
 import Breadcrumbs from '../components/Breadcrumbs.jsx'
@@ -13,7 +14,6 @@ import ConfirmModal from '../components/ConfirmModal.jsx'
 import ErrorModal from '../components/ErrorModal.jsx'
 import { parseError } from '../lib/parseError.js'
 
-const fmt = n => Number(n).toLocaleString('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 })
 const EMPTY_PROY = { año_ciclo: '', estatus: 'Activo' }
 
 export default function Generaciones() {

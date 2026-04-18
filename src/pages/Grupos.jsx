@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { Users, Clock, ArrowRight, AlertCircle, Pencil, Trash2, Plus } from 'lucide-react'
 import { useQuery } from '../lib/useQuery.js'
 import { useToast } from '../lib/toast.jsx'
+import { fmt } from '../lib/formatters.js'
 import * as q from '../lib/queries.js'
 import Breadcrumbs from '../components/Breadcrumbs.jsx'
 import ProgressBar from '../components/ProgressBar.jsx'
@@ -12,7 +13,6 @@ import ConfirmModal from '../components/ConfirmModal.jsx'
 import ErrorModal from '../components/ErrorModal.jsx'
 import { parseError } from '../lib/parseError.js'
 
-const fmt = n => Number(n).toLocaleString('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 })
 const EMPTY = { nombre_grupo: '', turno: 'Matutino' }
 
 export default function Grupos() {

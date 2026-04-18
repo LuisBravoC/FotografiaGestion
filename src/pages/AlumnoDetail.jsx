@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { AlertCircle, CreditCard, Package, CheckCircle2, Phone, User, MessageSquare, Pencil, Trash2, Plus, Zap, PackageCheck } from 'lucide-react'
 import { useQuery } from '../lib/useQuery.js'
 import { useToast } from '../lib/toast.jsx'
+import { fmt } from '../lib/formatters.js'
 import * as q from '../lib/queries.js'
 import Breadcrumbs from '../components/Breadcrumbs.jsx'
 import StatusBadge from '../components/StatusBadge.jsx'
@@ -14,7 +15,6 @@ import ConfirmModal from '../components/ConfirmModal.jsx'
 import ErrorModal from '../components/ErrorModal.jsx'
 import { parseError } from '../lib/parseError.js'
 
-const fmt = n => Number(n).toLocaleString('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 })
 const today = () => new Date().toISOString().slice(0, 10)
 
 export default function AlumnoDetail() {

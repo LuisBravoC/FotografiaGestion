@@ -2,10 +2,10 @@ import { Link } from 'react-router-dom'
 import { Building2, ArrowRight, Activity } from 'lucide-react'
 import { useQuery } from '../lib/useQuery.js'
 import * as q from '../lib/queries.js'
+import { fmt } from '../lib/formatters.js'
 import ProgressBar from '../components/ProgressBar.jsx'
 import LoadingSpinner, { ErrorMsg } from '../components/LoadingSpinner.jsx'
 
-const fmt = n => Number(n).toLocaleString('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 })
 
 export default function Dashboard() {
   const global = useQuery(() => q.getResumenGlobal(), [])
