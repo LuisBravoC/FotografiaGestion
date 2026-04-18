@@ -6,6 +6,7 @@ import Generaciones from './pages/Generaciones.jsx'
 import Grupos from './pages/Grupos.jsx'
 import AlumnosList from './pages/AlumnosList.jsx'
 import AlumnoDetail from './pages/AlumnoDetail.jsx'
+import Ajustes from './pages/Ajustes.jsx'
 
 export default function App() {
   return (
@@ -30,6 +31,9 @@ export default function App() {
 
           {/* Level 5 — Detalle de un alumno */}
           <Route path="/instituciones/:instId/proyectos/:proyId/grupos/:grupoId/alumnos/:alumnoId" element={<AlumnoDetail />} />
+
+          {/* Ajustes */}
+          <Route path="/ajustes" element={<Ajustes />} />
 
           {/* Catch-all */}
           <Route path="*" element={<Navigate to="/" replace />} />

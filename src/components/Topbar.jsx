@@ -1,34 +1,40 @@
-import { Link, useLocation } from 'react-router-dom'
-import { Camera, Search, X } from 'lucide-react'
-import { useState, useRef, useEffect } from 'react'
-import { buscarAlumnos } from '../data.js'
+import { Link } from 'react-router-dom'
+import { Camera, Search, X, Settings } from 'lucide-react'
+import { useState, useRef, useEffect, useCallback } from 'react'
+import { buscarAlumnos } from '../lib/queries.js'
 
 export default function Topbar() {
-  const [query, setQuery] = useState('')
+  const [query,   setQuery]   = useState('')
   const [results, setResults] = useState([])
-  const [open, setOpen] = useState(false)
-  const wrapRef = useRef(null)
+  const [open,    setOpen]    = useState(false)
+  const wrapRef   = useRef(null)
+  const timerRef  = useRef(null)
+
+  const doSearch = useCallback(async (v) => {
+    if (!v || v.trim().length < 2) { setResults([]); setOpen(false); return }
+    const r = await buscarAlumnos(v)
+    setResults(r)
+    setOpen(r.length > 0)
+  }, [])
 
   function handleChange(e) {
     const v = e.target.value
     setQuery(v)
-    const r = buscarAlumnos(v)
-    setResults(r)
-    setOpen(r.length > 0)
+    clearTimeout(timerRef.current)
+    timerRef.current = setTimeout(() => doSearch(v), 300)
   }
 
   function handleClear() {
     setQuery('')
     setResults([])
     setOpen(false)
+    clearTimeout(timerRef.current)
   }
 
   // Close on outside click
   useEffect(() => {
     function onClickOutside(e) {
-      if (wrapRef.current && !wrapRef.current.contains(e.target)) {
-        setOpen(false)
-      }
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false)
     }
     document.addEventListener('mousedown', onClickOutside)
     return () => document.removeEventListener('mousedown', onClickOutside)
@@ -45,7 +51,7 @@ export default function Topbar() {
         <Search size={15} className="search-icon" />
         <input
           type="text"
-          placeholder="Buscar alumno…"
+          placeholder="Buscar alumno o tutor…"
           value={query}
           onChange={handleChange}
           onFocus={() => results.length > 0 && setOpen(true)}
@@ -68,15 +74,19 @@ export default function Topbar() {
                 className="search-item"
                 onClick={handleClear}
               >
-                <span className="search-item-name">{r.nombre}</span>
+                <span className="search-item-name">{r.nombre_alumno}</span>
                 <span className="search-item-meta">
-                  {r.institucion?.nombre} · Gen {r.proyecto?.año_ciclo} · {r.grupo?.nombre}
+                  Tutor: {r.nombre_tutor} · {r.institucion?.nombre} · {r.grupo?.nombre_grupo}
                 </span>
               </Link>
             ))}
           </div>
         )}
       </div>
+
+      <Link to="/ajustes" className="topbar-icon-btn" title="Ajustes">
+        <Settings size={18} />
+      </Link>
     </header>
   )
 }
