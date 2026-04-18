@@ -6,6 +6,7 @@ import { useToast } from '../lib/toast.jsx'
 import { fmt } from '../lib/formatters.js'
 import * as q from '../lib/queries.js'
 import Breadcrumbs from '../components/Breadcrumbs.jsx'
+import { useBreadcrumbs } from '../lib/useBreadcrumbs.js'
 import ProgressBar from '../components/ProgressBar.jsx'
 import LoadingSpinner, { ErrorMsg } from '../components/LoadingSpinner.jsx'
 import Drawer from '../components/Drawer.jsx'
@@ -15,13 +16,9 @@ import { parseError } from '../lib/parseError.js'
 
 const EMPTY = { nombre: '', ciudad: '', direccion: '', contacto: '' }
 
-const crumbs = [
-  { label: 'Dashboard', to: '/' },
-  { label: 'Instituciones' },
-]
-
 export default function Instituciones() {
   const [refresh, setRefresh] = useState(0)
+  const crumbs = useBreadcrumbs()
   const { data, loading, error } = useQuery(() => q.getInstituciones(), [refresh])
 
   const [drawer,  setDrawer]  = useState(null)

@@ -7,6 +7,7 @@ import { fmt } from '../lib/formatters.js'
 import { useToast } from '../lib/toast.jsx'
 import * as q from '../lib/queries.js'
 import Breadcrumbs from '../components/Breadcrumbs.jsx'
+import { useBreadcrumbs } from '../lib/useBreadcrumbs.js'
 import ProgressBar from '../components/ProgressBar.jsx'
 import LoadingSpinner, { ErrorMsg } from '../components/LoadingSpinner.jsx'
 import Drawer from '../components/Drawer.jsx'
@@ -72,11 +73,7 @@ export default function Generaciones() {
   if (!instQ.data) return <NotFound />
 
   const inst = instQ.data
-  const crumbs = [
-    { label: 'Dashboard', to: '/' },
-    { label: 'Instituciones', to: '/instituciones' },
-    { label: inst.nombre },
-  ]
+  const crumbs = useBreadcrumbs({ instId: inst.nombre })
 
   return (
     <>

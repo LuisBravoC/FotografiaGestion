@@ -6,6 +6,7 @@ import { useToast } from '../lib/toast.jsx'
 import { fmt } from '../lib/formatters.js'
 import * as q from '../lib/queries.js'
 import Breadcrumbs from '../components/Breadcrumbs.jsx'
+import { useBreadcrumbs } from '../lib/useBreadcrumbs.js'
 import ProgressBar from '../components/ProgressBar.jsx'
 import LoadingSpinner, { ErrorMsg } from '../components/LoadingSpinner.jsx'
 import Drawer from '../components/Drawer.jsx'
@@ -74,12 +75,7 @@ export default function Grupos() {
   const inst = instQ.data
   const proy = proyQ.data
 
-  const crumbs = [
-    { label: 'Dashboard', to: '/' },
-    { label: 'Instituciones', to: '/instituciones' },
-    { label: inst.nombre, to: `/instituciones/${inst.id}` },
-    { label: `Gen ${proy.año_ciclo}` },
-  ]
+  const crumbs = useBreadcrumbs({ instId: inst.nombre, proyId: `Gen ${proy.año_ciclo}` })
 
   return (
     <>

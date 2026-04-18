@@ -5,6 +5,7 @@ import { useToast } from '../lib/toast.jsx'
 import { fmt } from '../lib/formatters.js'
 import * as q from '../lib/queries.js'
 import Breadcrumbs from '../components/Breadcrumbs.jsx'
+import { useBreadcrumbs } from '../lib/useBreadcrumbs.js'
 import LoadingSpinner, { ErrorMsg } from '../components/LoadingSpinner.jsx'
 import Drawer from '../components/Drawer.jsx'
 import ConfirmModal from '../components/ConfirmModal.jsx'
@@ -14,11 +15,6 @@ import TagsInput from '../components/TagsInput.jsx'
 
 
 const EMPTY = { titulo: '', descripcion: '', precio: '', que_incluye: [] }
-
-const crumbs = [
-  { label: 'Dashboard', to: '/' },
-  { label: 'Paquetes' },
-]
 
 // Paleta de acentos para las tarjetas (cicla por índice)
 const CARD_ACCENTS = [
@@ -31,6 +27,7 @@ const CARD_ACCENTS = [
 
 export default function Ajustes() {
   const [refresh, setRefresh] = useState(0)
+  const crumbs = useBreadcrumbs()
   const { data, loading, error } = useQuery(() => q.getPaquetes(), [refresh])
 
   const [drawer,  setDrawer]  = useState(null)

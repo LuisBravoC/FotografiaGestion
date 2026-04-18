@@ -6,6 +6,7 @@ import { useToast } from '../lib/toast.jsx'
 import { fmt } from '../lib/formatters.js'
 import * as q from '../lib/queries.js'
 import Breadcrumbs from '../components/Breadcrumbs.jsx'
+import { useBreadcrumbs } from '../lib/useBreadcrumbs.js'
 import StatusBadge from '../components/StatusBadge.jsx'
 import ProgressBar from '../components/ProgressBar.jsx'
 import WhatsAppBtn from '../components/WhatsAppBtn.jsx'
@@ -135,14 +136,7 @@ export default function AlumnoDetail() {
   const iniciales = (alumno.nombre_alumno ?? '').split(' ').filter(Boolean).map(w => w[0]).slice(0, 2).join('') || '?'
   const paquetes  = paqQ.data ?? []
 
-  const crumbs = [
-    { label: 'Dashboard', to: '/' },
-    { label: 'Instituciones', to: '/instituciones' },
-    { label: inst.nombre, to: `/instituciones/${inst.id}` },
-    { label: `Gen ${proy.año_ciclo}`, to: `/instituciones/${inst.id}/proyectos/${proy.id}` },
-    { label: grupo.nombre_grupo, to: `/instituciones/${inst.id}/proyectos/${proy.id}/grupos/${grupo.id}` },
-    { label: alumno.nombre_alumno },
-  ]
+  const crumbs = useBreadcrumbs({ instId: inst.nombre, proyId: `Gen ${proy.año_ciclo}`, grupoId: grupo.nombre_grupo, alumnoId: alumno.nombre_alumno })
 
   const alumnoYaListo = saldo === 0 && alumno.estatus_entrega === 'Entregado'
 
