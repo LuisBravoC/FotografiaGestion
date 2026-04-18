@@ -295,8 +295,12 @@ tbody tr:last-child { border-bottom: none; }
   min-width: 240px;
   z-index: 250;
   overflow: hidden;
-  animation: scaleIn .15s cubic-bezier(.32,.72,0,1);
+  animation: menuIn .15s cubic-bezier(.32,.72,0,1) both;
   transform-origin: top right;
+}
+@keyframes menuIn {
+  from { opacity: 0; transform: scale(.92); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
 .liberar-opt {
