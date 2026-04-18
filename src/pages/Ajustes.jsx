@@ -6,6 +6,8 @@ import Breadcrumbs from '../components/Breadcrumbs.jsx'
 import LoadingSpinner, { ErrorMsg } from '../components/LoadingSpinner.jsx'
 import Drawer from '../components/Drawer.jsx'
 import ConfirmModal from '../components/ConfirmModal.jsx'
+import ErrorModal from '../components/ErrorModal.jsx'
+import { parseError } from '../lib/parseError.js'
 import TagsInput from '../components/TagsInput.jsx'
 
 const fmt = n => Number(n).toLocaleString('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 })
@@ -33,7 +35,9 @@ export default function Ajustes() {
   const [drawer,  setDrawer]  = useState(null)
   const [form,    setForm]    = useState(EMPTY)
   const [saving,  setSaving]  = useState(false)
-  const [confirm, setConfirm] = useState(null)
+  const [confirm,  setConfirm]  = useState(null)
+  const [errModal,  setErrModal] = useState(null)
+  const showErr = e => setErrModal(typeof e === 'string' ? { title: 'Aviso', body: e } : parseError(e))
 
   const set  = (k, v) => setForm(f => ({ ...f, [k]: v }))
   const done = ()     => { setRefresh(r => r + 1); setDrawer(null) }
@@ -45,22 +49,22 @@ export default function Ajustes() {
   }
 
   async function handleSave() {
-    if (!form.titulo.trim()) return alert('El título es requerido')
-    if (!form.precio || Number(form.precio) < 0) return alert('El precio debe ser válido')
+    if (!form.titulo.trim()) { showErr('El título del paquete es obligatorio.'); return }
+    if (!form.precio || Number(form.precio) < 0) { showErr('Ingresa un precio válido (mayor o igual a 0).'); return }
     setSaving(true)
     try {
       const payload = { titulo: form.titulo.trim(), descripcion: form.descripcion.trim(), precio: Number(form.precio), que_incluye: form.que_incluye }
       if (drawer.mode === 'create') await q.insertPaquete(payload)
       else await q.updatePaquete(drawer.record.id, payload)
       done()
-    } catch (e) { alert('Error: ' + (e.message ?? e)) }
+    } catch (e) { showErr(e) }
     finally { setSaving(false) }
   }
 
   async function handleDelete() {
     setSaving(true)
     try { await q.deletePaquete(confirm); setConfirm(null); setRefresh(r => r + 1) }
-    catch (e) { alert('Error al eliminar: ' + (e.message ?? e)) }
+    catch (e) { showErr(e) }
     finally { setSaving(false) }
   }
 
@@ -169,6 +173,9 @@ export default function Ajustes() {
           message="¿Eliminar este paquete? Asegúrate de que ningún alumno lo tenga asignado."
           onConfirm={handleDelete} onCancel={() => setConfirm(null)} loading={saving}
         />
+      )}
+      {errModal && (
+        <ErrorModal title={errModal.title} body={errModal.body} onClose={() => setErrModal(null)} />
       )}
     </>
   )

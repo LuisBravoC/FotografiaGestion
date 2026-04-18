@@ -9,6 +9,8 @@ import ProgressBar from '../components/ProgressBar.jsx'
 import LoadingSpinner, { ErrorMsg } from '../components/LoadingSpinner.jsx'
 import Drawer from '../components/Drawer.jsx'
 import ConfirmModal from '../components/ConfirmModal.jsx'
+import ErrorModal from '../components/ErrorModal.jsx'
+import { parseError } from '../lib/parseError.js'
 
 const fmt = n => Number(n).toLocaleString('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 })
 const EMPTY_PROY = { año_ciclo: '', estatus: 'Activo' }
@@ -23,7 +25,9 @@ export default function Generaciones() {
   const [drawer,  setDrawer]  = useState(null)
   const [form,    setForm]    = useState(EMPTY_PROY)
   const [saving,  setSaving]  = useState(false)
-  const [confirm, setConfirm] = useState(null)
+  const [confirm,  setConfirm]  = useState(null)
+  const [errModal,  setErrModal] = useState(null)
+  const showErr = e => setErrModal(typeof e === 'string' ? { title: 'Aviso', body: e } : parseError(e))
 
   const set  = (k, v) => setForm(f => ({ ...f, [k]: v }))
   const done = ()     => { setRefresh(r => r + 1); setDrawer(null) }
@@ -36,20 +40,20 @@ export default function Generaciones() {
   }
 
   async function handleSave() {
-    if (!form.año_ciclo.trim()) return alert('El ciclo es requerido')
+    if (!form.año_ciclo.trim()) { showErr('El ciclo o año de la generación es obligatorio.'); return }
     setSaving(true)
     try {
       if (drawer.mode === 'create') await q.insertProyecto({ ...form, institucion_id: Number(instId) })
       else await q.updateProyecto(drawer.record.id, form)
       done()
-    } catch (e) { alert('Error: ' + (e.message ?? e)) }
+    } catch (e) { showErr(e) }
     finally { setSaving(false) }
   }
 
   async function handleDelete() {
     setSaving(true)
     try { await q.deleteProyecto(confirm); setConfirm(null); setRefresh(r => r + 1) }
-    catch (e) { alert('Error al eliminar: ' + (e.message ?? e)) }
+    catch (e) { showErr(e) }
     finally { setSaving(false) }
   }
 
@@ -103,6 +107,9 @@ export default function Generaciones() {
           message="¿Eliminar esta generación? Se eliminarán sus grupos y alumnos."
           onConfirm={handleDelete} onCancel={() => setConfirm(null)} loading={saving}
         />
+      )}
+      {errModal && (
+        <ErrorModal title={errModal.title} body={errModal.body} onClose={() => setErrModal(null)} />
       )}
     </>
   )

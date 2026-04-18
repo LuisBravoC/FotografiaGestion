@@ -10,6 +10,8 @@ import WhatsAppBtn from '../components/WhatsAppBtn.jsx'
 import LoadingSpinner, { ErrorMsg } from '../components/LoadingSpinner.jsx'
 import Drawer from '../components/Drawer.jsx'
 import ConfirmModal from '../components/ConfirmModal.jsx'
+import ErrorModal from '../components/ErrorModal.jsx'
+import { parseError } from '../lib/parseError.js'
 
 const fmt = n => Number(n).toLocaleString('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 })
 const today = () => new Date().toISOString().slice(0, 10)
@@ -37,6 +39,8 @@ export default function AlumnoDetail() {
   const [confirmDel,  setConfirmDel]  = useState(false)  // eliminar alumno
   const [confirmPago, setConfirmPago] = useState(null)   // id de pago a eliminar
   const [saving, setSaving] = useState(false)
+  const [errModal, setErrModal] = useState(null)
+  const showErr = e => setErrModal(typeof e === 'string' ? { title: 'Aviso', body: e } : parseError(e))
   // — Menú liberar alumno
   const [liberarOpen, setLiberarOpen] = useState(false)
   const liberarRef = useRef(null)
@@ -59,12 +63,12 @@ export default function AlumnoDetail() {
   }
 
   async function handleSaveAlumno() {
-    if (!formA.nombre_alumno?.trim()) return alert('El nombre es requerido')
+    if (!formA.nombre_alumno?.trim()) { showErr('El nombre del alumno es obligatorio.'); return }
     setSaving(true)
     try {
       await q.updateAlumno(Number(alumnoId), { ...formA, paquete_id: Number(formA.paquete_id) })
       setDrawerA(false); setRefreshA(r => r + 1)
-    } catch (e) { alert('Error: ' + (e.message ?? e)) }
+    } catch (e) { showErr(e) }
     finally { setSaving(false) }
   }
 
@@ -73,24 +77,24 @@ export default function AlumnoDetail() {
     try {
       await q.deleteAlumno(Number(alumnoId))
       navigate(`/instituciones/${instId}/proyectos/${proyId}/grupos/${grupoId}`)
-    } catch (e) { alert('Error al eliminar: ' + (e.message ?? e)); setSaving(false) }
+    } catch (e) { showErr(e); setSaving(false) }
   }
 
   async function handleAddPago() {
-    if (!formP.monto || Number(formP.monto) <= 0) return alert('El monto debe ser mayor a 0')
+    if (!formP.monto || Number(formP.monto) <= 0) { showErr('El monto del pago debe ser mayor a 0.'); return }
     setSaving(true)
     try {
       await q.insertPago({ alumno_id: Number(alumnoId), monto: Number(formP.monto), fecha: formP.fecha, metodo_pago: formP.metodo_pago })
       setDrawerP(false); setFormP({ monto: '', fecha: today(), metodo_pago: 'Efectivo' })
       setRefreshP(r => r + 1); setRefreshA(r => r + 1)
-    } catch (e) { alert('Error: ' + (e.message ?? e)) }
+    } catch (e) { showErr(e) }
     finally { setSaving(false) }
   }
 
   async function handleDeletePago() {
     setSaving(true)
     try { await q.deletePago(confirmPago); setConfirmPago(null); setRefreshP(r => r + 1); setRefreshA(r => r + 1) }
-    catch (e) { alert('Error: ' + (e.message ?? e)) }
+    catch (e) { showErr(e) }
     finally { setSaving(false) }
   }
 
@@ -109,7 +113,7 @@ export default function AlumnoDetail() {
       }
       setRefreshP(r => r + 1)
       setRefreshA(r => r + 1)
-    } catch (e) { alert('Error: ' + (e.message ?? e)) }
+    } catch (e) { showErr(e) }
     finally { setSaving(false) }
   }
 
@@ -323,10 +327,20 @@ export default function AlumnoDetail() {
 
       {/* ── Confirmaciones ───────────────────────── */}
       {confirmDel && (
-        <ConfirmModal message="¿Eliminar este alumno y todos sus pagos?" onConfirm={handleDeleteAlumno} onCancel={() => setConfirmDel(false)} loading={saving} />
+        <ConfirmModal
+          message={
+            saldo > 0
+              ? `⚠️ ${alumno.nombre_alumno} tiene una deuda pendiente de ${fmt(saldo)}. ¿Eliminar igualmente al alumno y todos sus pagos?`
+              : `¿Eliminar a ${alumno.nombre_alumno} y todos sus pagos?`
+          }
+          onConfirm={handleDeleteAlumno} onCancel={() => setConfirmDel(false)} loading={saving}
+        />
       )}
       {confirmPago !== null && (
         <ConfirmModal message="¿Eliminar este pago?" onConfirm={handleDeletePago} onCancel={() => setConfirmPago(null)} loading={saving} />
+      )}
+      {errModal && (
+        <ErrorModal title={errModal.title} body={errModal.body} onClose={() => setErrModal(null)} />
       )}
     </>
   )

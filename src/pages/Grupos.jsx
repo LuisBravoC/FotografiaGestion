@@ -8,6 +8,8 @@ import ProgressBar from '../components/ProgressBar.jsx'
 import LoadingSpinner, { ErrorMsg } from '../components/LoadingSpinner.jsx'
 import Drawer from '../components/Drawer.jsx'
 import ConfirmModal from '../components/ConfirmModal.jsx'
+import ErrorModal from '../components/ErrorModal.jsx'
+import { parseError } from '../lib/parseError.js'
 
 const fmt = n => Number(n).toLocaleString('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 })
 const EMPTY = { nombre_grupo: '', turno: 'Matutino' }
@@ -23,7 +25,9 @@ export default function Grupos() {
   const [drawer,  setDrawer]  = useState(null)
   const [form,    setForm]    = useState(EMPTY)
   const [saving,  setSaving]  = useState(false)
-  const [confirm, setConfirm] = useState(null)
+  const [confirm,  setConfirm]  = useState(null)
+  const [errModal,  setErrModal] = useState(null)
+  const showErr = e => setErrModal(typeof e === 'string' ? { title: 'Aviso', body: e } : parseError(e))
 
   const set  = (k, v) => setForm(f => ({ ...f, [k]: v }))
   const done = ()     => { setRefresh(r => r + 1); setDrawer(null) }
@@ -36,20 +40,20 @@ export default function Grupos() {
   }
 
   async function handleSave() {
-    if (!form.nombre_grupo.trim()) return alert('El nombre del grupo es requerido')
+    if (!form.nombre_grupo.trim()) { showErr('El nombre del grupo es obligatorio.'); return }
     setSaving(true)
     try {
       if (drawer.mode === 'create') await q.insertGrupo({ ...form, proyecto_id: Number(proyId) })
       else await q.updateGrupo(drawer.record.id, form)
       done()
-    } catch (e) { alert('Error: ' + (e.message ?? e)) }
+    } catch (e) { showErr(e) }
     finally { setSaving(false) }
   }
 
   async function handleDelete() {
     setSaving(true)
     try { await q.deleteGrupo(confirm); setConfirm(null); setRefresh(r => r + 1) }
-    catch (e) { alert('Error al eliminar: ' + (e.message ?? e)) }
+    catch (e) { showErr(e) }
     finally { setSaving(false) }
   }
 
@@ -107,6 +111,9 @@ export default function Grupos() {
           message="¿Eliminar este grupo? Se eliminarán sus alumnos y pagos."
           onConfirm={handleDelete} onCancel={() => setConfirm(null)} loading={saving}
         />
+      )}
+      {errModal && (
+        <ErrorModal title={errModal.title} body={errModal.body} onClose={() => setErrModal(null)} />
       )}
     </>
   )

@@ -10,6 +10,8 @@ import WhatsAppBtn from '../components/WhatsAppBtn.jsx'
 import LoadingSpinner, { ErrorMsg } from '../components/LoadingSpinner.jsx'
 import Drawer from '../components/Drawer.jsx'
 import ConfirmModal from '../components/ConfirmModal.jsx'
+import ErrorModal from '../components/ErrorModal.jsx'
+import { parseError } from '../lib/parseError.js'
 
 const fmt = n => Number(n).toLocaleString('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 })
 const EMPTY = { nombre_alumno: '', nombre_tutor: '', telefono_contacto: '', paquete_id: '', estatus_entrega: 'Pendiente', comentarios: '' }
@@ -29,7 +31,9 @@ export default function AlumnosList() {
   const [drawer,  setDrawer]  = useState(null)
   const [form,    setForm]    = useState(EMPTY)
   const [saving,  setSaving]  = useState(false)
-  const [confirm, setConfirm] = useState(null)
+  const [confirm,  setConfirm]  = useState(null)
+  const [errModal,  setErrModal] = useState(null)
+  const showErr = e => setErrModal(typeof e === 'string' ? { title: 'Aviso', body: e } : parseError(e))
 
   const set  = (k, v) => setForm(f => ({ ...f, [k]: v }))
   const done = ()     => { setRefresh(r => r + 1); setDrawer(null) }
@@ -46,22 +50,22 @@ export default function AlumnosList() {
   }
 
   async function handleSave() {
-    if (!form.nombre_alumno.trim()) return alert('El nombre del alumno es requerido')
-    if (!form.paquete_id) return alert('Selecciona un paquete')
+    if (!form.nombre_alumno.trim()) { showErr('El nombre del alumno es obligatorio.'); return }
+    if (!form.paquete_id) { showErr('Debes seleccionar un paquete fotográfico.'); return }
     setSaving(true)
     try {
       const payload = { ...form, paquete_id: Number(form.paquete_id) }
       if (drawer.mode === 'create') await q.insertAlumno({ ...payload, grupo_id: Number(grupoId) })
       else await q.updateAlumno(drawer.record.id, payload)
       done()
-    } catch (e) { alert('Error: ' + (e.message ?? e)) }
+    } catch (e) { showErr(e) }
     finally { setSaving(false) }
   }
 
   async function handleDelete() {
     setSaving(true)
     try { await q.deleteAlumno(confirm); setConfirm(null); setRefresh(r => r + 1) }
-    catch (e) { alert('Error al eliminar: ' + (e.message ?? e)) }
+    catch (e) { showErr(e) }
     finally { setSaving(false) }
   }
 
@@ -196,6 +200,9 @@ export default function AlumnosList() {
           message="¿Eliminar este alumno? Se eliminarán también sus pagos."
           onConfirm={handleDelete} onCancel={() => setConfirm(null)} loading={saving}
         />
+      )}
+      {errModal && (
+        <ErrorModal title={errModal.title} body={errModal.body} onClose={() => setErrModal(null)} />
       )}
     </>
   )

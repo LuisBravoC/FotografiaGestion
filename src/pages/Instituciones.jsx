@@ -8,6 +8,8 @@ import ProgressBar from '../components/ProgressBar.jsx'
 import LoadingSpinner, { ErrorMsg } from '../components/LoadingSpinner.jsx'
 import Drawer from '../components/Drawer.jsx'
 import ConfirmModal from '../components/ConfirmModal.jsx'
+import ErrorModal from '../components/ErrorModal.jsx'
+import { parseError } from '../lib/parseError.js'
 
 const fmt = n => Number(n).toLocaleString('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 })
 const EMPTY = { nombre: '', ciudad: '', direccion: '', contacto: '' }
@@ -24,7 +26,9 @@ export default function Instituciones() {
   const [drawer,  setDrawer]  = useState(null)
   const [form,    setForm]    = useState(EMPTY)
   const [saving,  setSaving]  = useState(false)
-  const [confirm, setConfirm] = useState(null)
+  const [confirm,  setConfirm]  = useState(null)
+  const [errModal,  setErrModal] = useState(null)
+  const showErr = e => setErrModal(typeof e === 'string' ? { title: 'Aviso', body: e } : parseError(e))
 
   const set  = (k, v) => setForm(f => ({ ...f, [k]: v }))
   const done = ()     => { setRefresh(r => r + 1); setDrawer(null) }
@@ -37,20 +41,20 @@ export default function Instituciones() {
   }
 
   async function handleSave() {
-    if (!form.nombre.trim()) return alert('El nombre es requerido')
+    if (!form.nombre.trim()) { showErr('El nombre de la institución es obligatorio.'); return }
     setSaving(true)
     try {
       if (drawer.mode === 'create') await q.insertInstitucion(form)
       else await q.updateInstitucion(drawer.record.id, form)
       done()
-    } catch (e) { alert('Error: ' + (e.message ?? e)) }
+    } catch (e) { showErr(e) }
     finally { setSaving(false) }
   }
 
   async function handleDelete() {
     setSaving(true)
     try { await q.deleteInstitucion(confirm); setConfirm(null); setRefresh(r => r + 1) }
-    catch (e) { alert('Error al eliminar: ' + (e.message ?? e)) }
+    catch (e) { showErr(e) }
     finally { setSaving(false) }
   }
 
@@ -98,6 +102,9 @@ export default function Instituciones() {
           message="¿Eliminar esta institución? Se eliminarán en cascada sus generaciones, grupos y alumnos."
           onConfirm={handleDelete} onCancel={() => setConfirm(null)} loading={saving}
         />
+      )}
+      {errModal && (
+        <ErrorModal title={errModal.title} body={errModal.body} onClose={() => setErrModal(null)} />
       )}
     </>
   )
