@@ -252,8 +252,12 @@ tbody td { padding: .75rem 1rem; vertical-align: middle; }
 /* ── Tabla → tarjetas en móvil ───────────────────────────────────────────── */
 @media (max-width: 640px) {
   .table-wrap thead { display: none; }
+  .table-wrap { background: var(--bg); padding: .75rem; border-radius: var(--radius); }
+  .table-wrap table,
+  .table-wrap tbody { background: transparent; }
   .table-wrap tbody,
   .table-wrap tr { display: block; }
+  .table-wrap tbody tr { border-bottom: none; }
 
   .table-wrap tr {
     border: 1px solid var(--border);

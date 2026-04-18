@@ -146,9 +146,6 @@ export default function AlumnosList() {
                     <td><span className={`badge ${a.estatus_entrega === 'Entregado' ? 'badge-liquidado' : 'badge-abonado'}`}>{a.estatus_entrega}</span></td>
                     <td onClick={e => e.stopPropagation()}>
                       <div style={{ display: 'flex', gap: '.25rem', alignItems: 'center' }}>
-                        {Number(a.saldo_pendiente) > 0 && (
-                          <WhatsAppBtn nombreTutor={a.nombre_tutor} nombreAlumno={a.nombre_alumno} telefono={a.telefono_contacto} saldo={Number(a.saldo_pendiente)} />
-                        )}
                         <button className="btn-icon" title="Editar" onClick={e => openEdit(a, e)}><Pencil size={13} /></button>
                         <button className="btn-icon danger" title="Eliminar" onClick={() => {
                           if (Number(a.saldo_pendiente) > 0) {
@@ -160,6 +157,9 @@ export default function AlumnosList() {
                           }
                           setConfirm(a.id)
                         }}><Trash2 size={13} /></button>
+                        {Number(a.saldo_pendiente) > 0 && (
+                          <WhatsAppBtn nombreTutor={a.nombre_tutor} nombreAlumno={a.nombre_alumno} telefono={a.telefono_contacto} saldo={Number(a.saldo_pendiente)} />
+                        )}
                       </div>
                     </td>
                   </tr>
