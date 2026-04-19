@@ -6,6 +6,7 @@ import { fmt } from '../lib/formatters.js'
 import * as q from '../lib/queries.js'
 import Breadcrumbs from '../components/Breadcrumbs.jsx'
 import { useBreadcrumbs } from '../lib/useBreadcrumbs.js'
+import { useAuth } from '../lib/AuthContext.jsx'
 import LoadingSpinner, { ErrorMsg } from '../components/LoadingSpinner.jsx'
 import Drawer from '../components/Drawer.jsx'
 import ConfirmModal from '../components/ConfirmModal.jsx'
@@ -28,6 +29,7 @@ const CARD_ACCENTS = [
 export default function Paquetes() {
   const [refresh, setRefresh] = useState(0)
   const crumbs = useBreadcrumbs()
+  const { isAdmin } = useAuth()
   const { data, loading, error } = useQuery(() => q.getPaquetes(), [refresh])
 
   const [drawer,  setDrawer]  = useState(null)
@@ -87,9 +89,9 @@ export default function Paquetes() {
               {paquetes.length} {paquetes.length === 1 ? 'paquete disponible' : 'paquetes disponibles'}
             </p>
           </div>
-          <button className="btn btn-primary" onClick={openCreate}>
+          {isAdmin && <button className="btn btn-primary" onClick={openCreate}>
             <Plus size={15} /> Nuevo paquete
-          </button>
+          </button>}
         </div>
 
         {/* ── Tarjetas ─────────────────────────────────────── */}
@@ -105,8 +107,14 @@ export default function Paquetes() {
                     <Package size={18} style={{ color: accent.text }} />
                   </div>
                   <div className="card-actions" style={{ marginLeft: 'auto' }}>
-                    <button className="btn-icon" title="Editar" onClick={() => openEdit(p)}><Pencil size={14} /></button>
-                    <button className="btn-icon danger" title="Eliminar" onClick={() => setConfirm(p.id)}><Trash2 size={14} /></button>
+                    {isAdmin && <>
+                  {isAdmin && (
+                    <div className="card-actions">
+                      <button className="btn-icon" title="Editar" onClick={() => openEdit(p)}><Pencil size={14} /></button>
+                      <button className="btn-icon danger" title="Eliminar" onClick={() => setConfirm(p.id)}><Trash2 size={14} /></button>
+                    </div>
+                  )}
+                    </>}
                   </div>
                 </div>
 

@@ -8,6 +8,7 @@ import { useToast } from '../lib/toast.jsx'
 import * as q from '../lib/queries.js'
 import Breadcrumbs from '../components/Breadcrumbs.jsx'
 import { useBreadcrumbs } from '../lib/useBreadcrumbs.js'
+import { useAuth } from '../lib/AuthContext.jsx'
 import ProgressBar from '../components/ProgressBar.jsx'
 import LoadingSpinner, { ErrorMsg } from '../components/LoadingSpinner.jsx'
 import Drawer from '../components/Drawer.jsx'
@@ -73,6 +74,7 @@ export default function Generaciones() {
   if (!instQ.data) return <NotFound />
 
   const inst = instQ.data
+  const { isAdmin } = useAuth()
   const crumbs = useBreadcrumbs({ instId: inst.nombre })
 
   return (
@@ -81,12 +83,15 @@ export default function Generaciones() {
       <div className="page">
         <div className="page-title-row">
           <h1 className="page-title" style={{ margin: 0 }}><CalendarDays size={22} /> {inst.nombre}</h1>
-          <button className="btn btn-primary" onClick={openCreate}><Plus size={15} /> Nueva generación</button>
+          {isAdmin && <button className="btn btn-primary" onClick={openCreate}><Plus size={15} /> Nueva generación</button>}
         </div>
         <p className="section-heading">Generaciones / Ciclos</p>
         <div className="grid grid-auto">
           {(proyQ.data ?? []).map(proy => (
-            <ProyCard key={proy.id} proy={proy} inst={inst} onEdit={openEdit} onDelete={id => setConfirm(id)} />
+            <ProyCard key={proy.id} proy={proy} inst={inst}
+              onEdit={isAdmin ? openEdit : null}
+              onDelete={isAdmin ? id => setConfirm(id) : null}
+            />
           ))}
           {(proyQ.data ?? []).length === 0 && <p className="empty">Sin generaciones. Crea la primera.</p>}
         </div>
@@ -137,8 +142,8 @@ function ProyCard({ proy, inst, onEdit, onDelete }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem' }}>
           <span className={`badge badge-${proy.estatus.toLowerCase()}`}>{proy.estatus}</span>
           <div className="card-actions" onClick={e => e.stopPropagation()}>
-            <button className="btn-icon" title="Editar" onClick={e => onEdit(proy, e)}><Pencil size={14} /></button>
-            <button className="btn-icon danger" title="Eliminar" onClick={() => onDelete(proy.id)}><Trash2 size={14} /></button>
+            {onEdit && <button className="btn-icon" title="Editar" onClick={e => onEdit(proy, e)}><Pencil size={14} /></button>}
+            {onDelete && <button className="btn-icon danger" title="Eliminar" onClick={() => onDelete(proy.id)}><Trash2 size={14} /></button>}
           </div>
         </div>
       </div>

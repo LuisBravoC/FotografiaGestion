@@ -7,6 +7,7 @@ import { fmt } from '../lib/formatters.js'
 import * as q from '../lib/queries.js'
 import Breadcrumbs from '../components/Breadcrumbs.jsx'
 import { useBreadcrumbs } from '../lib/useBreadcrumbs.js'
+import { useAuth } from '../lib/AuthContext.jsx'
 import ProgressBar from '../components/ProgressBar.jsx'
 import LoadingSpinner, { ErrorMsg } from '../components/LoadingSpinner.jsx'
 import Drawer from '../components/Drawer.jsx'
@@ -19,6 +20,7 @@ const EMPTY = { nombre: '', ciudad: '', direccion: '', contacto: '' }
 export default function Instituciones() {
   const [refresh, setRefresh] = useState(0)
   const crumbs = useBreadcrumbs()
+  const { isAdmin } = useAuth()
   const { data, loading, error } = useQuery(() => q.getInstituciones(), [refresh])
 
   const [drawer,  setDrawer]  = useState(null)
@@ -74,11 +76,14 @@ export default function Instituciones() {
       <div className="page">
         <div className="page-title-row">
           <h1 className="page-title" style={{ margin: 0 }}><Building2 size={22} /> Instituciones</h1>
-          <button className="btn btn-primary" onClick={openCreate}><Plus size={15} /> Nueva institución</button>
+          {isAdmin && <button className="btn btn-primary" onClick={openCreate}><Plus size={15} /> Nueva institución</button>}
         </div>
         <div className="grid grid-auto">
           {(data ?? []).map(inst => (
-            <InstCard key={inst.id} inst={inst} onEdit={openEdit} onDelete={id => setConfirm(id)} />
+            <InstCard key={inst.id} inst={inst}
+              onEdit={isAdmin ? openEdit : null}
+              onDelete={isAdmin ? id => setConfirm(id) : null}
+            />
           ))}
           {(data ?? []).length === 0 && <p className="empty">No hay instituciones. Crea la primera.</p>}
         </div>
@@ -133,8 +138,10 @@ function InstCard({ inst, onEdit, onDelete }) {
           </div>
         </div>
         <div className="card-actions" onClick={e => e.stopPropagation()}>
-          <button className="btn-icon" title="Editar" onClick={e => onEdit(inst, e)}><Pencil size={14} /></button>
-          <button className="btn-icon danger" title="Eliminar" onClick={() => onDelete(inst.id)}><Trash2 size={14} /></button>
+          {onEdit && onDelete && <>
+            <button className="btn-icon" title="Editar" onClick={e => onEdit(inst, e)}><Pencil size={14} /></button>
+            <button className="btn-icon danger" title="Eliminar" onClick={() => onDelete(inst.id)}><Trash2 size={14} /></button>
+          </>}
         </div>
       </div>
       {!loading && (

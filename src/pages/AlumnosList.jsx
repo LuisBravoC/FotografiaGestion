@@ -7,6 +7,7 @@ import { fmt } from '../lib/formatters.js'
 import * as q from '../lib/queries.js'
 import Breadcrumbs from '../components/Breadcrumbs.jsx'
 import { useBreadcrumbs } from '../lib/useBreadcrumbs.js'
+import { useAuth } from '../lib/AuthContext.jsx'
 import StatusBadge from '../components/StatusBadge.jsx'
 import ProgressBar from '../components/ProgressBar.jsx'
 import WhatsAppBtn from '../components/WhatsAppBtn.jsx'
@@ -114,6 +115,7 @@ export default function AlumnosList() {
     })
 
   const crumbs = useBreadcrumbs({ instId: inst.nombre, proyId: `Gen ${proy.año_ciclo}`, grupoId: grupo.nombre_grupo })
+  const { isAdmin } = useAuth()
 
   function exportCSV() {
     const rows = [['Alumno', 'Tutor', 'Teléfono', 'Paquete', 'Precio', 'Pagado', 'Saldo', 'Estatus', 'Entrega']]
@@ -135,7 +137,7 @@ export default function AlumnosList() {
           </h1>
           <div style={{ display: 'flex', gap: '.6rem' }}>
             <button className="btn btn-outline" onClick={exportCSV}><Download size={15} /> Exportar CSV</button>
-            <button className="btn btn-primary" onClick={openCreate}><Plus size={15} /> Nuevo alumno</button>
+            {isAdmin && <button className="btn btn-primary" onClick={openCreate}><Plus size={15} /> Nuevo alumno</button>}
           </div>
         </div>
 
@@ -216,17 +218,19 @@ export default function AlumnosList() {
                     <td><span className={`badge ${a.estatus_entrega === 'Entregado' ? 'badge-liquidado' : 'badge-abonado'}`}>{a.estatus_entrega}</span></td>
                     <td onClick={e => e.stopPropagation()}>
                       <div style={{ display: 'flex', gap: '.25rem', alignItems: 'center' }}>
-                        <button className="btn-icon" title="Editar" onClick={e => openEdit(a, e)}><Pencil size={13} /></button>
-                        <button className="btn-icon danger" title="Eliminar" onClick={() => {
-                          if (Number(a.saldo_pendiente) > 0) {
-                            setErrModal({
-                              title: 'Alumno con deuda pendiente',
-                              body: `${a.nombre_alumno} tiene un saldo sin liquidar de ${fmt(Number(a.saldo_pendiente))}. Liquida la deuda antes de eliminar al alumno.`,
-                            })
-                            return
-                          }
-                          setConfirm(a.id)
-                        }}><Trash2 size={13} /></button>
+                        {isAdmin && <button className="btn-icon" title="Editar" onClick={e => openEdit(a, e)}><Pencil size={13} /></button>}
+                        {isAdmin && (
+                          <button className="btn-icon danger" title="Eliminar" onClick={() => {
+                            if (Number(a.saldo_pendiente) > 0) {
+                              setErrModal({
+                                title: 'Alumno con deuda pendiente',
+                                body: `${a.nombre_alumno} tiene un saldo sin liquidar de ${fmt(Number(a.saldo_pendiente))}. Liquida la deuda antes de eliminar al alumno.`,
+                              })
+                              return
+                            }
+                            setConfirm(a.id)
+                          }}><Trash2 size={13} /></button>
+                        )}
                         {Number(a.saldo_pendiente) > 0 && (
                           <WhatsAppBtn nombreTutor={a.nombre_tutor} nombreAlumno={a.nombre_alumno} telefono={a.telefono_contacto} saldo={Number(a.saldo_pendiente)} />
                         )}

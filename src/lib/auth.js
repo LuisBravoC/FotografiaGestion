@@ -26,6 +26,21 @@ export async function getSession() {
 }
 
 /**
+ * Devuelve el perfil del usuario autenticado (nombre, rol) o null.
+ * Lee de la tabla public.perfiles.
+ */
+export async function getProfile(userId) {
+  if (!userId) return null
+  const { data, error } = await supabase
+    .from('perfiles')
+    .select('nombre, rol')
+    .eq('id', userId)
+    .single()
+  if (error) return null
+  return data
+}
+
+/**
  * Suscribe un callback a cambios de sesión (login / logout / refresco de token).
  * Devuelve una función para cancelar la suscripción.
  */

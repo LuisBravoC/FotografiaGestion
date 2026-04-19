@@ -7,6 +7,7 @@ import { fmt } from '../lib/formatters.js'
 import * as q from '../lib/queries.js'
 import Breadcrumbs from '../components/Breadcrumbs.jsx'
 import { useBreadcrumbs } from '../lib/useBreadcrumbs.js'
+import { useAuth } from '../lib/AuthContext.jsx'
 import StatusBadge from '../components/StatusBadge.jsx'
 import ProgressBar from '../components/ProgressBar.jsx'
 import WhatsAppBtn from '../components/WhatsAppBtn.jsx'
@@ -137,6 +138,7 @@ export default function AlumnoDetail() {
   const paquetes  = paqQ.data ?? []
 
   const crumbs = useBreadcrumbs({ instId: inst.nombre, proyId: `Gen ${proy.año_ciclo}`, grupoId: grupo.nombre_grupo, alumnoId: alumno.nombre_alumno })
+  const { isAdmin } = useAuth()
 
   const alumnoYaListo = saldo === 0 && alumno.estatus_entrega === 'Entregado'
 
@@ -154,7 +156,7 @@ export default function AlumnoDetail() {
           </div>
           <div style={{ display: 'flex', gap: '.5rem', alignItems: 'center' }}>
             {/* ── Botón acción rápida Liberar ────── */}
-            {!alumnoYaListo && (
+          {!alumnoYaListo && isAdmin && (
               <div className="liberar-wrap" ref={liberarRef}>
                 <button
                   className="btn liberar-btn"
@@ -194,21 +196,23 @@ export default function AlumnoDetail() {
               </div>
             )}
             <StatusBadge status={alumno.estatus_pago} />
-            <button className="btn-icon" title="Editar alumno" onClick={openEditAlumno}><Pencil size={16} /></button>
-            <button
-              className="btn-icon danger"
-              title="Eliminar alumno"
-              onClick={() => {
-                if (saldo > 0) {
-                  setErrModal({
-                    title: 'Alumno con deuda pendiente',
-                    body: `${alumno.nombre_alumno} tiene un saldo sin liquidar de ${fmt(saldo)}. Usa el botón ⚡ Liberar para registrar el pago antes de eliminar al alumno.`,
-                  })
-                  return
-                }
-                setConfirmDel(true)
-              }}
-            ><Trash2 size={16} /></button>
+            {isAdmin && <button className="btn-icon" title="Editar alumno" onClick={openEditAlumno}><Pencil size={16} /></button>}
+            {isAdmin && (
+              <button
+                className="btn-icon danger"
+                title="Eliminar alumno"
+                onClick={() => {
+                  if (saldo > 0) {
+                    setErrModal({
+                      title: 'Alumno con deuda pendiente',
+                      body: `${alumno.nombre_alumno} tiene un saldo sin liquidar de ${fmt(saldo)}. Usa el botón ⚡ Liberar para registrar el pago antes de eliminar al alumno.`,
+                    })
+                    return
+                  }
+                  setConfirmDel(true)
+                }}
+              ><Trash2 size={16} /></button>
+            )}
           </div>
         </div>
 
@@ -260,9 +264,9 @@ export default function AlumnoDetail() {
         {/* ── Historial ────────────────────────────── */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '1.5rem', marginBottom: '.75rem', borderBottom: '1px solid var(--border)', paddingBottom: '.4rem' }}>
           <p className="section-heading" style={{ margin: 0 }}>Historial de pagos</p>
-          <button className="btn btn-primary" style={{ fontSize: '.8rem', padding: '.35rem .75rem' }} onClick={() => setDrawerP(true)}>
+          {isAdmin && <button className="btn btn-primary" style={{ fontSize: '.8rem', padding: '.35rem .75rem' }} onClick={() => setDrawerP(true)}>
             <Plus size={13} /> Registrar pago
-          </button>
+          </button>}
         </div>
 
         {historial.length === 0
@@ -280,7 +284,7 @@ export default function AlumnoDetail() {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
                     <span className="pago-monto">+{fmt(p.monto)}</span>
-                    <button className="btn-icon danger" title="Eliminar pago" onClick={() => setConfirmPago(p.id)}><Trash2 size={13} /></button>
+                    {isAdmin && <button className="btn-icon danger" title="Eliminar pago" onClick={() => setConfirmPago(p.id)}><Trash2 size={13} /></button>}
                   </div>
                 </div>
               ))}

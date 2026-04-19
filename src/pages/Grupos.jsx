@@ -7,6 +7,7 @@ import { fmt } from '../lib/formatters.js'
 import * as q from '../lib/queries.js'
 import Breadcrumbs from '../components/Breadcrumbs.jsx'
 import { useBreadcrumbs } from '../lib/useBreadcrumbs.js'
+import { useAuth } from '../lib/AuthContext.jsx'
 import ProgressBar from '../components/ProgressBar.jsx'
 import LoadingSpinner, { ErrorMsg } from '../components/LoadingSpinner.jsx'
 import Drawer from '../components/Drawer.jsx'
@@ -74,7 +75,7 @@ export default function Grupos() {
 
   const inst = instQ.data
   const proy = proyQ.data
-
+  const { isAdmin } = useAuth()
   const crumbs = useBreadcrumbs({ instId: inst.nombre, proyId: `Gen ${proy.año_ciclo}` })
 
   return (
@@ -83,12 +84,15 @@ export default function Grupos() {
       <div className="page">
         <div className="page-title-row">
           <h1 className="page-title" style={{ margin: 0 }}><Users size={22} /> Grupos — Gen {proy.año_ciclo}</h1>
-          <button className="btn btn-primary" onClick={openCreate}><Plus size={15} /> Nuevo grupo</button>
+          {isAdmin && <button className="btn btn-primary" onClick={openCreate}><Plus size={15} /> Nuevo grupo</button>}
         </div>
         <p style={{ color: 'var(--text-muted)', fontSize: '.88rem', marginBottom: '1.5rem' }}>{inst.nombre}</p>
         <div className="grid grid-auto">
           {(grupoQ.data ?? []).map(g => (
-            <GrupoCard key={g.id} g={g} inst={inst} proy={proy} onEdit={openEdit} onDelete={id => setConfirm(id)} />
+            <GrupoCard key={g.id} g={g} inst={inst} proy={proy}
+              onEdit={isAdmin ? openEdit : null}
+              onDelete={isAdmin ? id => setConfirm(id) : null}
+            />
           ))}
           {(grupoQ.data ?? []).length === 0 && <p className="empty">Sin grupos. Crea el primero.</p>}
         </div>
@@ -140,8 +144,8 @@ function GrupoCard({ g, inst, proy, onEdit, onDelete }) {
           </div>
         </div>
         <div className="card-actions" onClick={e => e.stopPropagation()}>
-          <button className="btn-icon" title="Editar" onClick={e => onEdit(g, e)}><Pencil size={14} /></button>
-          <button className="btn-icon danger" title="Eliminar" onClick={() => onDelete(g.id)}><Trash2 size={14} /></button>
+          {onEdit && <button className="btn-icon" title="Editar" onClick={e => onEdit(g, e)}><Pencil size={14} /></button>}
+          {onDelete && <button className="btn-icon danger" title="Eliminar" onClick={() => onDelete(g.id)}><Trash2 size={14} /></button>}
         </div>
       </div>
       {!loading && (
