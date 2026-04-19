@@ -1,9 +1,18 @@
-import { Link, NavLink } from 'react-router-dom'
-import { Camera, Search, X, Settings, Building2, Package, BookImage, AlertCircle } from 'lucide-react'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { Camera, Search, X, Settings, Building2, Package, BookImage, AlertCircle, LogOut } from 'lucide-react'
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { buscarAlumnos } from '../lib/queries.js'
+import { useAuth } from '../lib/AuthContext.jsx'
+import { signOut } from '../lib/auth.js'
 
 export default function Topbar() {
+  const { session } = useAuth()
+  const navigate = useNavigate()
+
+  async function handleLogout() {
+    await signOut()
+    navigate('/login', { replace: true })
+  }
   const [query,   setQuery]   = useState('')
   const [results, setResults] = useState([])
   const [open,    setOpen]    = useState(false)
@@ -111,6 +120,11 @@ export default function Topbar() {
         <NavLink to="/paquetes" className={({ isActive }) => 'topbar-nav-link' + (isActive ? ' active' : '')}>
           <BookImage size={15} /> <span className="nav-label">Paquetes</span>
         </NavLink>
+        {session && (
+          <button className="topbar-nav-link btn-logout" onClick={handleLogout} title="Cerrar sesión">
+            <LogOut size={15} /> <span className="nav-label">Salir</span>
+          </button>
+        )}
       </nav>
 
     </header>

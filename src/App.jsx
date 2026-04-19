@@ -1,6 +1,9 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { ToastProvider } from './lib/toast.jsx'
+import { AuthProvider, useAuth } from './lib/AuthContext.jsx'
+import ProtectedRoute from './components/ProtectedRoute.jsx'
 import Topbar from './components/Topbar.jsx'
+import Login from './pages/Login.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import Instituciones from './pages/Instituciones.jsx'
 import Generaciones from './pages/Generaciones.jsx'
@@ -10,42 +13,42 @@ import AlumnoDetail from './pages/AlumnoDetail.jsx'
 import Deudas from './pages/Deudas.jsx'
 import Paquetes from './pages/Paquetes.jsx'
 
-export default function App() {
+function AppShell() {
+  const { session } = useAuth()
   return (
-    <ToastProvider>
     <div className="app-shell">
-      <Topbar />
+      {session && <Topbar />}
       <main>
         <Routes>
-          {/* Level 1 — Dashboard */}
-          <Route path="/" element={<Dashboard />} />
-
-          {/* Level 2 — Instituciones */}
-          <Route path="/instituciones" element={<Instituciones />} />
-
-          {/* Level 3 — Generaciones de una institución */}
-          <Route path="/instituciones/:instId" element={<Generaciones />} />
-
-          {/* Level 3.5 — Grupos de un proyecto */}
-          <Route path="/instituciones/:instId/proyectos/:proyId" element={<Grupos />} />
-
-          {/* Level 4 — Lista alumnos de un grupo */}
-          <Route path="/instituciones/:instId/proyectos/:proyId/grupos/:grupoId" element={<AlumnosList />} />
-
-          {/* Level 5 — Detalle de un alumno */}
-          <Route path="/instituciones/:instId/proyectos/:proyId/grupos/:grupoId/alumnos/:alumnoId" element={<AlumnoDetail />} />
-
-          {/* Deudas pendientes */}
-          <Route path="/deudas" element={<Deudas />} />
-
-          {/* Paquetes */}
-          <Route path="/paquetes" element={<Paquetes />} />
+          {/* Rutas protegidas */}
+          <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/instituciones" element={<ProtectedRoute><Instituciones /></ProtectedRoute>} />
+          <Route path="/instituciones/:instId" element={<ProtectedRoute><Generaciones /></ProtectedRoute>} />
+          <Route path="/instituciones/:instId/proyectos/:proyId" element={<ProtectedRoute><Grupos /></ProtectedRoute>} />
+          <Route path="/instituciones/:instId/proyectos/:proyId/grupos/:grupoId" element={<ProtectedRoute><AlumnosList /></ProtectedRoute>} />
+          <Route path="/instituciones/:instId/proyectos/:proyId/grupos/:grupoId/alumnos/:alumnoId" element={<ProtectedRoute><AlumnoDetail /></ProtectedRoute>} />
+          <Route path="/deudas" element={<ProtectedRoute><Deudas /></ProtectedRoute>} />
+          <Route path="/paquetes" element={<ProtectedRoute><Paquetes /></ProtectedRoute>} />
 
           {/* Catch-all */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
     </div>
+  )
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+    <ToastProvider>
+      <Routes>
+        {/* Login fuera del app-shell — página completamente independiente */}
+        <Route path="/login" element={<Login />} />
+        {/* Todo lo demás dentro del app-shell */}
+        <Route path="/*" element={<AppShell />} />
+      </Routes>
     </ToastProvider>
+    </AuthProvider>
   )
 }
