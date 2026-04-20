@@ -15,7 +15,6 @@ alter table alumnos        disable row level security;
 alter table pagos          disable row level security;
 
 -- Opción B (alternativa): Mantener RLS activo pero permitir lectura pública
--- Comenta el bloque de arriba y descomenta éste si prefieres RLS activado:
 -- -----------------------------------------------------------------------------
 -- alter table paquetes      enable row level security;
 -- alter table instituciones enable row level security;
@@ -32,7 +31,7 @@ alter table pagos          disable row level security;
 -- create policy "lectura_publica" on pagos         for select using (true);
 -- create policy "escritura_publica" on paquetes    for update using (true);
 
--- Verificación rápida: ¿hay datos?
+-- Verificación rápida
 -- -----------------------------------------------------------------------------
 select 'paquetes'      as tabla, count(*) from paquetes
 union all

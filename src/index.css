@@ -1048,16 +1048,19 @@ tbody tr:last-child { border-bottom: none; }
 }
 
 .login-logo {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 52px;
-  height: 52px;
-  background: rgba(99,102,241,.15);
-  border: 1px solid rgba(99,102,241,.3);
-  border-radius: 1rem;
-  color: var(--accent-light);
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.login-logo-img {
+  width: 240px;
+  height: auto;
+  filter: invert(0) brightness(1.2) blur(0px);
+  opacity: .9;
+  image-rendering: auto;
+  transform: translateZ(0);
 }
 
 .login-title {

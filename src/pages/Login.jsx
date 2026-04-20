@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Camera, Mail, Lock, LogIn, Eye, EyeOff } from 'lucide-react'
+import { Mail, Lock, LogIn, Eye, EyeOff } from 'lucide-react'
+import logo from '../assets/logo.svg'
 import { signIn } from '../lib/auth.js'
 
 export default function Login() {
@@ -35,10 +36,10 @@ export default function Login() {
 
         {/* Logo */}
         <div className="login-logo">
-          <Camera size={28} />
+          <img src={logo} alt="Logo" className="login-logo-img" />
         </div>
-        <h1 className="login-title">Fotografía Gestión</h1>
-        <p className="login-sub">Inicia sesión para continuar</p>
+        <h1 className="login-title">FotoGestión</h1>
+        <p className="login-sub">Inicio de sesión</p>
 
         <form className="login-form" onSubmit={handleSubmit} noValidate>
 
@@ -92,7 +93,7 @@ export default function Login() {
 
         </form>
       </div>
-      <footer className="login-footer">Diseñada por Luis Bravo</footer>
+      <footer className="login-footer">Sitio diseñado por Luis Bravo</footer>
     </div>
   )
 }
