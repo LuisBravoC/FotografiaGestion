@@ -9,6 +9,7 @@ const SEGMENT_LABEL = {
   ajustes:       'Ajustes',
   paquetes:      'Paquetes',
   deudas:        'Deudas pendientes',
+  opciones:      'Opciones',
 }
 
 /**
