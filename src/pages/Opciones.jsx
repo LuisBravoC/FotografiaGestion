@@ -39,7 +39,7 @@ export default function Opciones() {
   const themeConfig = {
     dark: { icon: Moon, label: 'Oscuro' },
     light: { icon: Sun, label: 'Claro' },
-    google: { icon: Globe, label: 'Google' }
+    //google: { icon: Globe, label: 'Google' }
   }
 
   return (

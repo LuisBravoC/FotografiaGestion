@@ -55,19 +55,6 @@ body {
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
-html.light .topbar {
-  background: rgba(255,255,255,.95);
-}
-
-html.google .topbar {
-  background: #ffffff;
-  height: 64px;
-  box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 1px 2px rgba(0,0,0,.24);
-  border-bottom: none;
-}
-.topbar-brand  { justify-self: start; }
-.topbar-nav    { justify-self: end; }
-
 .topbar-brand {
   display: flex;
   align-items: center;
@@ -77,6 +64,7 @@ html.google .topbar {
   color: var(--accent-light);
   text-decoration: none;
   flex-shrink: 0;
+  justify-self: start;
 }
 
 .topbar-nav {
@@ -84,7 +72,9 @@ html.google .topbar {
   align-items: center;
   gap: .25rem;
   flex-shrink: 0;
+  justify-self: end;
 }
+
 .topbar-nav-link {
   display: flex;
   align-items: center;
@@ -98,33 +88,59 @@ html.google .topbar {
   transition: background .15s, color .15s;
 }
 
-.topbar-nav-link:hover { 
-  background: var(--bg-hover); 
-  color: var(--text); 
+.topbar-nav-link:hover {
+  background: var(--bg-hover);
+  color: var(--text);
 }
 
-.topbar-nav-link.active { 
-  background: rgba(99,102,241,.15); 
-  color: var(--accent-light); 
+.topbar-nav-link.active {
+  background: rgba(99,102,241,.15);
+  color: var(--accent-light);
+}
+
+html.light .topbar {
+  background: rgba(255,255,255,.95);
+}
+
+html.google .topbar {
+  background: #ffffff;
+  height: 64px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.12);
+  border-bottom: none;
+  padding: 0 24px;
+}
+
+html.google .topbar-brand {
+  color: #1f71ba;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: 0;
 }
 
 html.google .topbar-nav-link {
-  font-size: 0.875rem;
-  padding: 0.5rem 0.75rem;
+  font-size: 14px;
+  padding: 0 12px;
+  height: 64px;
+  display: flex;
+  align-items: center;
   border-radius: 0;
   background: transparent;
+  color: #5f6368;
+  text-decoration: none;
+  border-bottom: 3px solid transparent;
+  font-weight: 500;
 }
 
 html.google .topbar-nav-link:hover {
   background: transparent;
-  color: var(--text);
+  color: #202124;
 }
 
 html.google .topbar-nav-link.active {
   background: transparent;
-  border-bottom: 3px solid var(--accent);
-  color: var(--accent);
-  padding-bottom: calc(0.5rem - 3px);
+  border-bottom: 3px solid #1f71ba;
+  color: #1f71ba;
+  padding-bottom: 0;
 }
 
 /* 1er paso: desaparece el texto "FotoGestión" */
@@ -1356,3 +1372,593 @@ tbody tr:last-child { border-bottom: none; }
   opacity: .75;
 }
 .btn-logout:hover { background: var(--deuda-bg) !important; color: var(--deuda) !important; opacity: 1; }
+
+/* ═══════════════════════════════════════════════════════════════════════════════ */
+/* ── GOOGLE MATERIAL DESIGN v3 - Estilos Específicos Completos ─────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Cards ────────────────────────────────────────────────────────────────────── */
+html.google .card {
+  border: none;
+  box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.12);
+  border-radius: 8px;
+  padding: 12px 16px;
+}
+
+html.google .card:hover {
+  box-shadow: 0 2px 4px rgba(0,0,0,.1), 0 2px 4px rgba(0,0,0,.14);
+}
+
+html.google .card-title {
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+html.google .card-sub {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────────── */
+html.google .btn {
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: none;
+  box-shadow: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+html.google .btn-primary {
+  background: #1f71ba;
+  color: #ffffff;
+}
+
+html.google .btn-primary:hover {
+  background: #1565a0;
+  box-shadow: 0 1px 3px rgba(0,0,0,.12);
+}
+
+html.google .btn-outline {
+  background: transparent;
+  border: 1px solid #dadce0;
+  color: var(--text);
+}
+
+html.google .btn-outline:hover {
+  background: rgba(31,113,186,.04);
+  border-color: #1f71ba;
+}
+
+/* ── Inputs & Fields ─────────────────────────────────────────────────────────── */
+html.google .field input,
+html.google .field select,
+html.google .field textarea {
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  padding: 10px 12px;
+  font-size: 14px;
+  background: #ffffff;
+  color: #202124;
+}
+
+html.google .field input:focus,
+html.google .field select:focus,
+html.google .field textarea:focus {
+  border-color: #1f71ba;
+  box-shadow: 0 1px 3px rgba(31,113,186,.12);
+  outline: none;
+}
+
+html.google .field label {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  color: #5f6368;
+}
+
+/* ── Search Input ────────────────────────────────────────────────────────────── */
+html.google .topbar-search input {
+  border: none;
+  background: #f1f3f4;
+  border-radius: 24px;
+  padding: 8px 16px 8px 40px;
+  font-size: 14px;
+}
+
+html.google .topbar-search input:focus {
+  background: #ffffff;
+  border: 1px solid #dadce0;
+  padding: 8px 16px 8px 40px;
+}
+
+/* ── Badges & Pills ──────────────────────────────────────────────────────────── */
+html.google .badge {
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 8px;
+}
+
+html.google .badge-liquidado {
+  background: rgba(56,142,60,.12);
+  color: #188038;
+}
+
+html.google .badge-abonado {
+  background: rgba(245,124,0,.12);
+  color: #d97706;
+}
+
+html.google .badge-deuda {
+  background: rgba(211,47,47,.12);
+  color: #c5221f;
+}
+
+/* ── Modals & Dialogs ────────────────────────────────────────────────────────── */
+html.google .modal-overlay {
+  background: rgba(0,0,0,.32);
+  backdrop-filter: blur(2px);
+}
+
+html.google .modal-dialog {
+  border-radius: 8px;
+  box-shadow: 0 5px 5px rgba(0,0,0,.16), 0 8px 10px rgba(0,0,0,.12);
+  border: none;
+}
+
+/* ── Drawer ──────────────────────────────────────────────────────────────────── */
+html.google .drawer {
+  border: none;
+  box-shadow: -1px 0 3px rgba(0,0,0,.12), -1px 0 2px rgba(0,0,0,.24);
+  border-radius: 0;
+}
+
+html.google .drawer-header {
+  border-bottom: 1px solid #e8eaed;
+  padding: 16px 24px;
+}
+
+html.google .drawer-title {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* ── Tables ──────────────────────────────────────────────────────────────────── */
+html.google thead th {
+  background: #f8f9fa;
+  border-bottom: 1px solid #dadce0;
+  color: #5f6368;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+html.google tbody tr {
+  border-bottom: 1px solid #e8eaed;
+}
+
+html.google tbody tr:hover {
+  background: #f8f9fa;
+}
+
+html.google tbody td {
+  padding: 12px 16px;
+  font-size: 13px;
+}
+
+/* ── Paginas Opciones ────────────────────────────────────────────────────────── */
+html.google .opciones-group {
+  background: #ffffff;
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.08);
+  overflow: hidden;
+}
+
+html.google .opciones-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e8eaed;
+}
+
+html.google .opciones-item:last-child {
+  border-bottom: none;
+}
+
+html.google .opciones-item:hover {
+  background: #f8f9fa;
+}
+
+html.google .opciones-item-icon {
+  width: 40px;
+  height: 40px;
+  background: rgba(31,113,186,.12);
+  color: #1f71ba;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+html.google .opciones-item-label {
+  font-size: 15px;
+  font-weight: 500;
+  color: #202124;
+}
+
+html.google .opciones-item-desc {
+  font-size: 13px;
+  color: #5f6368;
+}
+
+html.google .opciones-badge {
+  background: #e0e0e0;
+  color: #5f6368;
+  border-radius: 12px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+html.google .theme-pill {
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #5f6368;
+  background: #f8f9fa;
+}
+
+html.google .theme-pill:hover:not(:disabled) {
+  background: #f1f3f4;
+  border-color: #1f71ba;
+  color: #1f71ba;
+}
+
+html.google .theme-pill-active {
+  background: #1f71ba;
+  color: #ffffff;
+  border-color: #1f71ba;
+  font-weight: 600;
+}
+
+/* ── Page Titles ─────────────────────────────────────────────────────────────── */
+html.google .page-title {
+  font-size: 28px;
+  font-weight: 400;
+  letter-spacing: -0.5px;
+  color: #202124;
+  margin-bottom: 8px;
+}
+
+html.google .page-subtitle {
+  font-size: 14px;
+  color: #5f6368;
+  font-weight: 400;
+}
+
+/* ── Section Headers ─────────────────────────────────────────────────────────── */
+html.google .section-heading {
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #5f6368;
+  border-bottom: 1px solid #e8eaed;
+  padding-bottom: 8px;
+  margin: 16px 0 12px;
+}
+
+/* ── Stat Cards ──────────────────────────────────────────────────────────────── */
+html.google .stat-value {
+  font-size: 24px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+html.google .stat-label {
+  font-size: 12px;
+  color: #5f6368;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+/* ── Breadcrumbs ────────────────────────────────────────────────────────────── */
+html.google .breadcrumbs {
+  font-size: 12px;
+  color: #5f6368;
+}
+
+html.google .breadcrumbs a {
+  color: #1f71ba;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+html.google .breadcrumbs a:hover {
+  text-decoration: underline;
+}
+
+/* ── Toast Notifications ────────────────────────────────────────────────────── */
+html.google .toast {
+  background: #323232;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.3);
+  font-size: 14px;
+}
+
+/* ── Opciones Item Theme ────────────────────────────────────────────────────── */
+html.google .opciones-item-theme {
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+html.google .opciones-theme-pills {
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ── Grid Cards ─────────────────────────────────────────────────────────────── */
+html.google .paq-card {
+  border: none;
+  box-shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.12);
+  border-radius: 8px;
+}
+
+html.google .paq-card:hover {
+  box-shadow: 0 2px 4px rgba(0,0,0,.12), 0 4px 8px rgba(0,0,0,.1);
+}
+
+html.google .paq-card-icon {
+  background: rgba(31,113,186,.12);
+  color: #1f71ba;
+  border-radius: 50%;
+}
+
+html.google .paq-card-titulo {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+html.google .paq-card-precio {
+  font-size: 20px;
+  font-weight: 500;
+  color: #1f71ba;
+}
+
+/* ── Login Page Google ───────────────────────────────────────────────────────── */
+html.google .login-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,.1), 0 4px 8px rgba(0,0,0,.08);
+  border: 1px solid #dadce0;
+}
+
+html.google .login-form input {
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+html.google .login-form input:focus {
+  border-color: #1f71ba;
+  box-shadow: 0 1px 3px rgba(31,113,186,.12);
+}
+
+/* ── Responsive para Google ──────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  html.google .topbar {
+    padding: 0 12px;
+    grid-template-columns: auto 1fr auto;
+  }
+  
+  html.google .topbar-nav-link {
+    padding: 0 8px;
+  }
+  
+  html.google .opciones-layout {
+    padding: 0 8px;
+  }
+  
+  html.google .page {
+    padding: 8px 12px 2rem;
+  }
+}
+
+/* ── Filter Pills Google ─────────────────────────────────────────────────────── */
+html.google .filter-pill {
+  border: 1px solid #dadce0;
+  background: #f8f9fa;
+  color: #5f6368;
+  border-radius: 4px;
+  font-size: 13px;
+  padding: 6px 12px;
+}
+
+html.google .filter-pill:hover {
+  background: #f1f3f4;
+  border-color: #1f71ba;
+  color: #1f71ba;
+}
+
+html.google .filter-pill.active {
+  background: #1f71ba;
+  color: #ffffff;
+  border-color: #1f71ba;
+}
+
+/* ── Drawer Sidebar Google ───────────────────────────────────────────────────── */
+html.google .drawer-header {
+  border-bottom: 1px solid #dadce0;
+  padding: 16px 24px;
+}
+
+html.google .drawer-footer {
+  border-top: 1px solid #dadce0;
+  padding: 12px 24px;
+  gap: 8px;
+}
+
+/* ── Progress Bar Google ────────────────────────────────────────────────────── */
+html.google .progress-bar {
+  background: #e8eaed;
+  height: 4px;
+}
+
+html.google .progress-fill {
+  background: linear-gradient(90deg, #1f71ba, #1f71ba);
+}
+
+/* ── Loader y Spinners Google ────────────────────────────────────────────────── */
+html.google .loading-spinner {
+  border-color: rgba(31,113,186,.1);
+  border-top-color: #1f71ba;
+}
+
+/* ── Opciones Liberar Button Google ──────────────────────────────────────────── */
+html.google .liberar-btn {
+  background: rgba(245,124,0,.12);
+  border: 1px solid rgba(245,124,0,.3);
+  color: #f57c00;
+  border-radius: 4px;
+}
+
+html.google .liberar-btn:hover {
+  background: rgba(245,124,0,.22);
+  border-color: rgba(245,124,0,.5);
+}
+
+html.google .liberar-menu {
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.15), 0 4px 12px rgba(0,0,0,.1);
+}
+
+/* ── Confirm Modal específico Google ─────────────────────────────────────────── */
+html.google .modal-dialog {
+  box-shadow: 0 5px 5px rgba(0,0,0,.16), 0 8px 10px rgba(0,0,0,.12);
+}
+
+/* ── Input Search Dropdown Google ────────────────────────────────────────────── */
+html.google .search-dropdown {
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.15), 0 4px 12px rgba(0,0,0,.1);
+}
+
+html.google .search-item {
+  border-bottom: 1px solid #f0f0f0;
+  padding: 12px 16px;
+}
+
+html.google .search-item:hover {
+  background: #f8f9fa;
+}
+
+html.google .search-item-name {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+html.google .search-item-meta {
+  font-size: 12px;
+  color: #5f6368;
+}
+
+/* ── Empty State Google ──────────────────────────────────────────────────────── */
+html.google .empty {
+  color: #5f6368;
+}
+
+html.google .empty svg {
+  opacity: 0.2;
+}
+
+/* ── Alumno Detail Google ────────────────────────────────────────────────────── */
+html.google .alumno-avatar {
+  background: linear-gradient(135deg, #1f71ba, #2b7de9);
+  box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+
+html.google .saldo-box {
+  border-radius: 8px;
+  background: #f8f9fa;
+  border: 1px solid #dadce0;
+  box-shadow: none;
+}
+
+html.google .pago-row {
+  background: #ffffff;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+}
+
+/* ── Tags Input Google ───────────────────────────────────────────────────────── */
+html.google .tags-wrap {
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  background: #ffffff;
+}
+
+html.google .tags-wrap:focus-within {
+  border-color: #1f71ba;
+}
+
+html.google .tag {
+  background: rgba(31,113,186,.15);
+  color: #1f71ba;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+
+html.google .tag-del {
+  color: #1f71ba;
+}
+
+/* ── Dashboard Stats Cards Google ────────────────────────────────────────────── */
+html.google .grid-stats {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+html.google .stat-card {
+  text-align: center;
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 20px 16px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.12);
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
+}
+
+html.google .stat-card:hover {
+  box-shadow: 0 2px 4px rgba(0,0,0,.12), 0 4px 8px rgba(0,0,0,.1);
+  transform: translateY(-2px);
+}
+
+html.google .stat-value {
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+
+html.google .stat-label {
+  font-size: 13px;
+  color: #5f6368;
+  font-weight: 400;
+}

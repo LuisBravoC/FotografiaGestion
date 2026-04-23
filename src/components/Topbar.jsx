@@ -114,11 +114,9 @@ export default function Topbar() {
         <NavLink to="/paquetes" className={({ isActive }) => 'topbar-nav-link' + (isActive ? ' active' : '')}>
           <BookImage size={15} /> <span className="nav-label">Paquetes</span>
         </NavLink>
-        {/* 
         <NavLink to="/opciones" className={({ isActive }) => 'topbar-nav-link' + (isActive ? ' active' : '')}>
           <Settings size={15} /> <span className="nav-label">Opciones</span>
-        </NavLink>
-        */}
+        </NavLink>  
         {session && (
           <button className="topbar-nav-link btn-logout" onClick={handleLogout} title="Cerrar sesión">
             <LogOut size={15} /> <span className="nav-label">Salir</span>
