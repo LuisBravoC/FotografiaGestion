@@ -12,6 +12,7 @@ import AlumnosList from './pages/AlumnosList.jsx'
 import AlumnoDetail from './pages/AlumnoDetail.jsx'
 import Deudas from './pages/Deudas.jsx'
 import Paquetes from './pages/Paquetes.jsx'
+import Opciones from './pages/Opciones.jsx'
 
 function AppShell() {
   const { session } = useAuth()
@@ -29,6 +30,7 @@ function AppShell() {
           <Route path="/instituciones/:instId/proyectos/:proyId/grupos/:grupoId/alumnos/:alumnoId" element={<ProtectedRoute><AlumnoDetail /></ProtectedRoute>} />
           <Route path="/deudas" element={<ProtectedRoute><Deudas /></ProtectedRoute>} />
           <Route path="/paquetes" element={<ProtectedRoute><Paquetes /></ProtectedRoute>} />
+          <Route path="/opciones" element={<ProtectedRoute><Opciones /></ProtectedRoute>} />
 
           {/* Catch-all */}
           <Route path="*" element={<Navigate to="/" replace />} />

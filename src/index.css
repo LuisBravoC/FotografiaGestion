@@ -29,6 +29,7 @@ body {
   color: var(--text);
   min-height: 100dvh;
   font-size: 15px;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* ── Layout ───────────────────────────────────────────────────────────────── */
@@ -51,6 +52,18 @@ body {
   grid-template-columns: auto minmax(0, 560px) auto;
   align-items: center;
   gap: 1rem;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+html.light .topbar {
+  background: rgba(255,255,255,.95);
+}
+
+html.google .topbar {
+  background: #ffffff;
+  height: 64px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 1px 2px rgba(0,0,0,.24);
+  border-bottom: none;
 }
 .topbar-brand  { justify-self: start; }
 .topbar-nav    { justify-self: end; }
@@ -84,8 +97,35 @@ body {
   border-radius: .5rem;
   transition: background .15s, color .15s;
 }
-.topbar-nav-link:hover { background: var(--bg-hover); color: var(--text); }
-.topbar-nav-link.active { background: rgba(99,102,241,.15); color: var(--accent-light); }
+
+.topbar-nav-link:hover { 
+  background: var(--bg-hover); 
+  color: var(--text); 
+}
+
+.topbar-nav-link.active { 
+  background: rgba(99,102,241,.15); 
+  color: var(--accent-light); 
+}
+
+html.google .topbar-nav-link {
+  font-size: 0.875rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0;
+  background: transparent;
+}
+
+html.google .topbar-nav-link:hover {
+  background: transparent;
+  color: var(--text);
+}
+
+html.google .topbar-nav-link.active {
+  background: transparent;
+  border-bottom: 3px solid var(--accent);
+  color: var(--accent);
+  padding-bottom: calc(0.5rem - 3px);
+}
 
 /* 1er paso: desaparece el texto "FotoGestión" */
 @media (max-width: 740px) {
@@ -1137,9 +1177,15 @@ tbody tr:last-child { border-bottom: none; }
   border: 1px solid var(--border);
   background: transparent;
   color: var(--text-muted);
-  cursor: not-allowed;
-  opacity: .6;
+  cursor: pointer;
+  opacity: 0.7;
   transition: all .15s;
+}
+
+.theme-pill:hover:not(:disabled) {
+  opacity: 1;
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .theme-pill-active {
@@ -1147,6 +1193,12 @@ tbody tr:last-child { border-bottom: none; }
   border-color: rgba(99,102,241,.4);
   color: var(--accent-light);
   opacity: 1;
+  font-weight: 700;
+}
+
+.theme-pill:disabled:not(.theme-pill-active) {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .page-subtitle {

@@ -2,6 +2,7 @@ import { Sun, Moon, Monitor, Globe, Bell, Shield, User, Palette, Info, ChevronRi
 import Breadcrumbs from '../components/Breadcrumbs.jsx'
 import { useBreadcrumbs } from '../lib/useBreadcrumbs.js'
 import { useAuth } from '../lib/AuthContext.jsx'
+import { useTheme } from '../lib/ThemeContext.jsx'
 
 function OptionSection({ icon: Icon, title, description, badge }) {
   return (
@@ -33,6 +34,13 @@ function OptionGroup({ title, children }) {
 export default function Opciones() {
   const crumbs = useBreadcrumbs()
   const { user, rol } = useAuth()
+  const { theme, setTheme } = useTheme()
+
+  const themeConfig = {
+    dark: { icon: Moon, label: 'Oscuro' },
+    light: { icon: Sun, label: 'Claro' },
+    google: { icon: Globe, label: 'Google' }
+  }
 
   return (
     <>
@@ -69,12 +77,19 @@ export default function Opciones() {
               <div className="opciones-item-icon"><Palette size={18} /></div>
               <div className="opciones-item-body">
                 <span className="opciones-item-label">Tema</span>
-                <span className="opciones-item-desc">Elige entre claro, oscuro o según el sistema</span>
+                <span className="opciones-item-desc">Elige entre claro, oscuro o estilo Google</span>
               </div>
               <div className="opciones-theme-pills">
-                <button className="theme-pill" disabled title="Próximamente"><Sun size={14} /> Claro</button>
-                <button className="theme-pill theme-pill-active" disabled title="Activo"><Moon size={14} /> Oscuro</button>
-                <button className="theme-pill" disabled title="Próximamente"><Monitor size={14} /> Sistema</button>
+                {Object.entries(themeConfig).map(([key, { icon: Icon, label }]) => (
+                  <button
+                    key={key}
+                    className={`theme-pill ${theme === key ? 'theme-pill-active' : ''}`}
+                    onClick={() => setTheme(key)}
+                    title={`Tema ${label}`}
+                  >
+                    <Icon size={14} /> {label}
+                  </button>
+                ))}
               </div>
             </div>
           </OptionGroup>
