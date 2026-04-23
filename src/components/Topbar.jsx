@@ -1,5 +1,5 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom'
-import { Camera, Search, X, Settings, Building2, Package, BookImage, AlertCircle, LogOut } from 'lucide-react'
+import { Camera, Search, X, Settings, Building2, Package, BookImage, AlertCircle, LogOut, Menu } from 'lucide-react'
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { buscarAlumnos } from '../lib/queries.js'
 import { useAuth } from '../lib/AuthContext.jsx'
@@ -16,7 +16,9 @@ export default function Topbar() {
   const [query,   setQuery]   = useState('')
   const [results, setResults] = useState([])
   const [open,    setOpen]    = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
   const wrapRef   = useRef(null)
+  const menuRef   = useRef(null)
   const timerRef   = useRef(null)
   const abortRef   = useRef(null)
 
@@ -55,6 +57,7 @@ export default function Topbar() {
   useEffect(() => {
     function onClickOutside(e) {
       if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false)
+      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false)
     }
     document.addEventListener('mousedown', onClickOutside)
     return () => document.removeEventListener('mousedown', onClickOutside)
@@ -104,25 +107,58 @@ export default function Topbar() {
         )}
       </div>
 
-      <nav className="topbar-nav">
-        <NavLink to="/deudas" className={({ isActive }) => 'topbar-nav-link' + (isActive ? ' active' : '')}>
-          <AlertCircle size={15} /> <span className="nav-label">Deudas</span>
-        </NavLink>
-        <NavLink to="/instituciones" className={({ isActive }) => 'topbar-nav-link' + (isActive ? ' active' : '')}>
-          <Building2 size={15} /> <span className="nav-label">Instituciones</span>
-        </NavLink>
-        <NavLink to="/paquetes" className={({ isActive }) => 'topbar-nav-link' + (isActive ? ' active' : '')}>
-          <BookImage size={15} /> <span className="nav-label">Paquetes</span>
-        </NavLink>
-        <NavLink to="/opciones" className={({ isActive }) => 'topbar-nav-link' + (isActive ? ' active' : '')}>
-          <Settings size={15} /> <span className="nav-label">Opciones</span>
-        </NavLink>  
-        {session && (
-          <button className="topbar-nav-link btn-logout" onClick={handleLogout} title="Cerrar sesión">
-            <LogOut size={15} /> <span className="nav-label">Salir</span>
-          </button>
+      <div className="topbar-nav-area" ref={menuRef}>
+        <nav className="topbar-nav">
+          <NavLink to="/deudas" className={({ isActive }) => 'topbar-nav-link' + (isActive ? ' active' : '')}>
+            <AlertCircle size={15} /> <span className="nav-label">Deudas</span>
+          </NavLink>
+          <NavLink to="/instituciones" className={({ isActive }) => 'topbar-nav-link' + (isActive ? ' active' : '')}>
+            <Building2 size={15} /> <span className="nav-label">Instituciones</span>
+          </NavLink>
+          <NavLink to="/paquetes" className={({ isActive }) => 'topbar-nav-link' + (isActive ? ' active' : '')}>
+            <BookImage size={15} /> <span className="nav-label">Paquetes</span>
+          </NavLink>
+          <NavLink to="/opciones" className={({ isActive }) => 'topbar-nav-link' + (isActive ? ' active' : '')}>
+            <Settings size={15} /> <span className="nav-label">Opciones</span>
+          </NavLink>
+          {session && (
+            <button className="topbar-nav-link btn-logout" onClick={handleLogout} title="Cerrar sesión">
+              <LogOut size={15} /> <span className="nav-label">Salir</span>
+            </button>
+          )}
+        </nav>
+
+        <button
+          className="topbar-hamburger"
+          onClick={() => setMenuOpen(o => !o)}
+          aria-label="Abrir menú"
+          aria-expanded={menuOpen}
+        >
+          <Menu size={22} />
+        </button>
+
+        {menuOpen && (
+          <div className="mobile-nav">
+            <NavLink to="/deudas" className={({ isActive }) => 'mobile-nav-link' + (isActive ? ' active' : '')} onClick={() => setMenuOpen(false)}>
+              <AlertCircle size={16} /> Deudas
+            </NavLink>
+            <NavLink to="/instituciones" className={({ isActive }) => 'mobile-nav-link' + (isActive ? ' active' : '')} onClick={() => setMenuOpen(false)}>
+              <Building2 size={16} /> Instituciones
+            </NavLink>
+            <NavLink to="/paquetes" className={({ isActive }) => 'mobile-nav-link' + (isActive ? ' active' : '')} onClick={() => setMenuOpen(false)}>
+              <BookImage size={16} /> Paquetes
+            </NavLink>
+            <NavLink to="/opciones" className={({ isActive }) => 'mobile-nav-link' + (isActive ? ' active' : '')} onClick={() => setMenuOpen(false)}>
+              <Settings size={16} /> Opciones
+            </NavLink>
+            {session && (
+              <button className="mobile-nav-link mobile-nav-logout" onClick={() => { setMenuOpen(false); handleLogout() }}>
+                <LogOut size={16} /> Salir
+              </button>
+            )}
+          </div>
         )}
-      </nav>
+      </div>
 
     </header>
   )

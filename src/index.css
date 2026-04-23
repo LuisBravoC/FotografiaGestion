@@ -67,12 +67,88 @@ body {
   justify-self: start;
 }
 
+.topbar-nav-area {
+  justify-self: end;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
 .topbar-nav {
   display: flex;
   align-items: center;
   gap: .25rem;
   flex-shrink: 0;
-  justify-self: end;
+}
+
+.topbar-hamburger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: .4rem;
+  border-radius: .5rem;
+  transition: background .15s, color .15s;
+}
+.topbar-hamburger:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+
+.mobile-nav {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  z-index: 200;
+  min-width: 200px;
+  overflow: hidden;
+  animation: fadeIn .15s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.mobile-nav-link {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .75rem 1rem;
+  font-size: .9rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-decoration: none;
+  width: 100%;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+  text-align: left;
+}
+.mobile-nav-link:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+.mobile-nav-link.active {
+  color: var(--accent-light);
+  background: rgba(99,102,241,.08);
+}
+.mobile-nav-logout {
+  border-top: 1px solid var(--border);
+  color: var(--deuda);
+}
+.mobile-nav-logout:hover {
+  background: rgba(239,68,68,.08);
+  color: var(--deuda);
 }
 
 .topbar-nav-link {
@@ -143,6 +219,46 @@ html.google .topbar-nav-link.active {
   padding-bottom: 0;
 }
 
+html.google .topbar-hamburger {
+  color: #5f6368;
+  border-radius: 50%;
+  padding: 8px;
+}
+html.google .topbar-hamburger:hover {
+  background: #f1f3f4;
+  color: #202124;
+}
+
+html.google .mobile-nav {
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.15), 0 4px 12px rgba(0,0,0,.1);
+  background: #ffffff;
+}
+
+html.google .mobile-nav-link {
+  font-size: 14px;
+  font-weight: 500;
+  color: #5f6368;
+  padding: 12px 16px;
+}
+html.google .mobile-nav-link:hover {
+  background: #f8f9fa;
+  color: #202124;
+}
+html.google .mobile-nav-link.active {
+  background: #e8f0fe;
+  color: #1f71ba;
+}
+html.google .mobile-nav-logout {
+  border-top: 1px solid #dadce0;
+  color: #d32f2f;
+}
+html.google .mobile-nav-logout:hover {
+  background: #fce8e6;
+  color: #d32f2f;
+}
+
 /* 1er paso: desaparece el texto "FotoGestión" */
 @media (max-width: 740px) {
   .topbar { grid-template-columns: auto 1fr auto; }
@@ -150,10 +266,10 @@ html.google .topbar-nav-link.active {
   .topbar-brand span, .topbar-brand-text { display: none; }
 }
 
-/* 2do paso: desaparecen los textos de Deudas, Instituciones y Paquetes */
-@media (max-width: 640px) {
-  .topbar-nav-link { padding: .35rem .5rem; }
-  .topbar-nav-link .nav-label { display: none; }
+/* 2do paso: hamburger menu reemplaza la nav */
+@media (max-width: 950px) {
+  .topbar-nav { display: none; }
+  .topbar-hamburger { display: flex; }
 }
 
 .topbar-search {
