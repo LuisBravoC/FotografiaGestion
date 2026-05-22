@@ -24,33 +24,32 @@ export function useBreadcrumbs(labels = {}) {
   const { pathname } = useLocation()
   const params = useParams()
 
-  // Map actual param value (e.g. "42") → human-readable label
-  const valueToLabel = {}
-  for (const [key, label] of Object.entries(labels)) {
-    if (params[key] != null && label != null) {
-      valueToLabel[params[key]] = label
-    }
-  }
+  // Build an ORDERED list of labels in URL order.
+  // Using the param value as map key causes collisions when two params share
+  // the same numeric ID (e.g. instId=1 and grupoId=1 → same label overwrites).
+  // Instead, we consume labels sequentially as we encounter dynamic segments.
+  const orderedLabels = Object.entries(labels)
+    .filter(([key, label]) => params[key] != null && label != null)
+    .map(([, label]) => label)
 
-  const segments = pathname.split('/')
+  const segments = pathname.split('/').filter(Boolean)
   const crumbs = [{ label: 'Dashboard', to: '/' }]
   let path = ''
+  let labelIdx = 0
 
-  for (let i = 1; i < segments.length; i++) {
-    const seg = segments[i]
-    if (!seg) continue
+  for (const seg of segments) {
     path += '/' + seg
 
     if (seg in SEGMENT_LABEL) {
       const label = SEGMENT_LABEL[seg]
-      if (label === null) continue   // skip connector segment
-      const isLast = i === segments.length - 1
+      if (label === null) continue   // skip connector segment (proyectos, grupos, alumnos)
+      const isLast = path === '/' + segments.join('/')
       crumbs.push({ label, ...(isLast ? {} : { to: path }) })
     } else {
-      // Dynamic param — resolve to human label
-      const label = valueToLabel[seg]
-      if (!label) continue
-      const isLast = i === segments.length - 1
+      // Dynamic segment — consume next label from the ordered list
+      if (labelIdx >= orderedLabels.length) continue
+      const label = orderedLabels[labelIdx++]
+      const isLast = path === '/' + segments.join('/')
       crumbs.push({ label, ...(isLast ? {} : { to: path }) })
     }
   }

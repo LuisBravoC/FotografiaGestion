@@ -46,6 +46,8 @@ export default function AlumnosList() {
   }
   const showErr = e => setErrModal(typeof e === 'string' ? { title: 'Aviso', body: e } : (e?.title ? e : parseError(e)))
   const toast = useToast()
+  const { isAdmin } = useAuth()
+  const crumbs = useBreadcrumbs({ instId: instQ.data?.nombre, proyId: proyQ.data ? `Gen ${proyQ.data.año_ciclo}` : undefined, grupoId: grupoQ.data?.nombre_grupo })
 
   const set  = (k, v) => setForm(f => ({ ...f, [k]: v }))
   const done = (msg)  => { setRefresh(r => r + 1); setDrawer(null); if (msg) toast(msg) }
@@ -114,8 +116,7 @@ export default function AlumnosList() {
       return 0
     })
 
-  const crumbs = useBreadcrumbs({ instId: inst.nombre, proyId: `Gen ${proy.año_ciclo}`, grupoId: grupo.nombre_grupo })
-  const { isAdmin } = useAuth()
+
 
   function exportCSV() {
     const rows = [['Alumno', 'Tutor', 'Teléfono', 'Paquete', 'Precio', 'Pagado', 'Saldo', 'Estatus', 'Entrega']]
@@ -202,11 +203,11 @@ export default function AlumnosList() {
                   <th></th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody key={`${filtroPago}|${filtroEntrega}|${sortCol}|${sortDir}`}>
                 {filtrados.length === 0 ? (
                   <tr><td colSpan={9} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>Ningún alumno coincide con los filtros aplicados.</td></tr>
-                ) : filtrados.map(a => (
-                  <tr key={a.id} style={{ cursor: 'pointer' }}
+                ) : filtrados.map((a, i) => (
+                  <tr key={a.id} className="fade-item" style={{ cursor: 'pointer', animationDelay: `${i * 35}ms` }}
                     onClick={() => navigate(`/instituciones/${inst.id}/proyectos/${proy.id}/grupos/${grupo.id}/alumnos/${a.id}`)}>
                     <td className="td-name" style={{ color: 'var(--accent-light)' }}>{a.nombre_alumno}</td>
                     <td style={{ color: 'var(--text-muted)', fontSize: '.82rem' }}>{a.nombre_tutor}</td>

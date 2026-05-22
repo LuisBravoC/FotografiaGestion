@@ -45,6 +45,8 @@ export default function AlumnoDetail() {
   const [errModal, setErrModal] = useState(null)
   const showErr = e => setErrModal(typeof e === 'string' ? { title: 'Aviso', body: e } : (e?.title ? e : parseError(e)))
   const toast = useToast()
+  const { isAdmin } = useAuth()
+  const crumbs = useBreadcrumbs({ instId: instQ.data?.nombre, proyId: proyQ.data ? `Gen ${proyQ.data.año_ciclo}` : undefined, grupoId: grupoQ.data?.nombre_grupo, alumnoId: alumnoQ.data?.nombre_alumno })
   // — Menú liberar alumno
   const [liberarOpen, setLiberarOpen] = useState(false)
   const liberarRef = useRef(null)
@@ -136,9 +138,6 @@ export default function AlumnoDetail() {
   const saldo   = Number(alumno.saldo_pendiente)
   const iniciales = (alumno.nombre_alumno ?? '').split(' ').filter(Boolean).map(w => w[0]).slice(0, 2).join('') || '?'
   const paquetes  = paqQ.data ?? []
-
-  const crumbs = useBreadcrumbs({ instId: inst.nombre, proyId: `Gen ${proy.año_ciclo}`, grupoId: grupo.nombre_grupo, alumnoId: alumno.nombre_alumno })
-  const { isAdmin } = useAuth()
 
   const alumnoYaListo = saldo === 0 && alumno.estatus_entrega === 'Entregado'
 

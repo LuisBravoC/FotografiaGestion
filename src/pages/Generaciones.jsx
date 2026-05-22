@@ -32,6 +32,8 @@ export default function Generaciones() {
   const [errModal,  setErrModal] = useState(null)
   const showErr = e => setErrModal(typeof e === 'string' ? { title: 'Aviso', body: e } : (e?.title ? e : parseError(e)))
   const toast = useToast()
+  const { isAdmin } = useAuth()
+  const crumbs = useBreadcrumbs({ instId: instQ.data?.nombre })
 
   const set  = (k, v) => setForm(f => ({ ...f, [k]: v }))
   const done = (msg)  => { setRefresh(r => r + 1); setDrawer(null); if (msg) toast(msg) }
@@ -74,8 +76,6 @@ export default function Generaciones() {
   if (!instQ.data) return <NotFound />
 
   const inst = instQ.data
-  const { isAdmin } = useAuth()
-  const crumbs = useBreadcrumbs({ instId: inst.nombre })
 
   return (
     <>
@@ -86,7 +86,7 @@ export default function Generaciones() {
           {isAdmin && <button className="btn btn-primary" onClick={openCreate}><Plus size={15} /> Nueva generación</button>}
         </div>
         <p className="section-heading">Generaciones / Ciclos</p>
-        <div className="grid grid-auto">
+        <div className="grid grid-auto list-anim">
           {(proyQ.data ?? []).map(proy => (
             <ProyCard key={proy.id} proy={proy} inst={inst}
               onEdit={isAdmin ? openEdit : null}

@@ -134,11 +134,12 @@ export default function Deudas() {
                     <th></th>
                   </tr>
                 </thead>
-                <tbody>
-                  {filtrados.map(a => (
+                <tbody key={`${filtroInst}|${busqueda}|${sortCol}|${sortDir}`}>
+                  {filtrados.map((a, i) => (
                     <tr
                       key={a.id}
-                      style={{ cursor: 'pointer' }}
+                      className="fade-item"
+                      style={{ cursor: 'pointer', animationDelay: `${i * 35}ms` }}
                       onClick={() =>
                         navigate(
                           `/instituciones/${a.inst_id}/proyectos/${a.proy_id}/grupos/${a.grupo_id_real}/alumnos/${a.id}`

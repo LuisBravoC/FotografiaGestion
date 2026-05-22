@@ -10,4 +10,6 @@ if (!supabaseUrl || supabaseUrl.includes('TU_PROJECT_URL')) {
   )
 }
 
-export const supabase = createClient(supabaseUrl, supabaseKey)
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+  db: { schema: 'fotogestion' },
+})

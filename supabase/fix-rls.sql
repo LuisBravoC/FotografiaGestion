@@ -1,8 +1,12 @@
 -- =============================================================================
--- fix-rls.sql  — Ejecutar en Supabase → SQL Editor si la app no muestra datos
+-- fix-rls.sql  — OBSOLETO: RLS ahora está activado correctamente.
 -- =============================================================================
--- Supabase activa RLS por defecto y bloquea lecturas anónimas.
--- Este script permite que el anon key (publishable) lea todas las tablas.
+-- Este script desactivaba RLS como solución temporal de desarrollo.
+-- Ya NO debe ejecutarse. Utilizar rls-policies.sql en su lugar.
+--
+-- Si la app no muestra datos después de activar RLS, la causa más probable
+-- es que el usuario no tenga sesión activa o que el JWT haya expirado.
+-- Verificar en: Supabase Dashboard → Authentication → Users
 -- =============================================================================
 
 -- Opción A: Desactivar RLS (más simple, válido para apps internas)

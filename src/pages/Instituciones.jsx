@@ -78,7 +78,7 @@ export default function Instituciones() {
           <h1 className="page-title" style={{ margin: 0 }}><Building2 size={22} /> Instituciones</h1>
           {isAdmin && <button className="btn btn-primary" onClick={openCreate}><Plus size={15} /> Nueva institución</button>}
         </div>
-        <div className="grid grid-auto">
+        <div className="grid grid-auto list-anim">
           {(data ?? []).map(inst => (
             <InstCard key={inst.id} inst={inst}
               onEdit={isAdmin ? openEdit : null}

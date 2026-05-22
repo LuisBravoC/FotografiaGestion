@@ -9,8 +9,30 @@
 
 
 -- =============================================================================
+-- 0. SCHEMA
+-- =============================================================================
+-- Usamos un schema propio para no interferir con otros proyectos
+-- (ej. RifaGestion) que comparten la misma instancia de Supabase.
+--
+-- Pasos adicionales requeridos en Supabase Dashboard:
+--   Settings → API → "Extra schemas" → añadir: fotogestion
+-- =============================================================================
+
+CREATE SCHEMA IF NOT EXISTS fotogestion;
+SET search_path TO fotogestion;
+
+
+-- =============================================================================
 -- 1. TABLAS
 -- =============================================================================
+
+-- ── Perfiles de usuario (vinculada a auth.users) ──────────────────────────────
+create table if not exists perfiles (
+  id     uuid primary key references auth.users(id) on delete cascade,
+  nombre text,
+  rol    text not null default 'viewer'
+               check (rol in ('admin', 'viewer'))
+);
 
 -- ── Paquetes ──────────────────────────────────────────────────────────────────
 create table if not exists paquetes (
@@ -75,6 +97,23 @@ create table if not exists pagos (
                             check (metodo_pago in ('Efectivo', 'Transferencia', 'Tarjeta')),
   created_at    timestamptz not null default now()
 );
+
+
+-- =============================================================================
+-- 1b. PERMISOS DEL SCHEMA
+-- =============================================================================
+-- Los roles anon / authenticated de Supabase no tienen acceso a schemas
+-- personalizados por defecto. Hay que otorgarlo explícitamente.
+
+GRANT USAGE ON SCHEMA fotogestion TO anon, authenticated;
+GRANT ALL ON ALL TABLES    IN SCHEMA fotogestion TO anon, authenticated;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA fotogestion TO anon, authenticated;
+
+-- Permisos para tablas y secuencias que se creen en el futuro
+ALTER DEFAULT PRIVILEGES IN SCHEMA fotogestion
+  GRANT ALL ON TABLES TO anon, authenticated;
+ALTER DEFAULT PRIVILEGES IN SCHEMA fotogestion
+  GRANT ALL ON SEQUENCES TO anon, authenticated;
 
 
 -- =============================================================================

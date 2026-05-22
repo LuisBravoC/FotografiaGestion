@@ -32,6 +32,8 @@ export default function Grupos() {
   const [errModal,  setErrModal] = useState(null)
   const showErr = e => setErrModal(typeof e === 'string' ? { title: 'Aviso', body: e } : (e?.title ? e : parseError(e)))
   const toast = useToast()
+  const { isAdmin } = useAuth()
+  const crumbs = useBreadcrumbs({ instId: instQ.data?.nombre, proyId: proyQ.data ? `Gen ${proyQ.data.año_ciclo}` : undefined })
 
   const set  = (k, v) => setForm(f => ({ ...f, [k]: v }))
   const done = (msg)  => { setRefresh(r => r + 1); setDrawer(null); if (msg) toast(msg) }
@@ -75,8 +77,6 @@ export default function Grupos() {
 
   const inst = instQ.data
   const proy = proyQ.data
-  const { isAdmin } = useAuth()
-  const crumbs = useBreadcrumbs({ instId: inst.nombre, proyId: `Gen ${proy.año_ciclo}` })
 
   return (
     <>
@@ -87,7 +87,7 @@ export default function Grupos() {
           {isAdmin && <button className="btn btn-primary" onClick={openCreate}><Plus size={15} /> Nuevo grupo</button>}
         </div>
         <p style={{ color: 'var(--text-muted)', fontSize: '.88rem', marginBottom: '1.5rem' }}>{inst.nombre}</p>
-        <div className="grid grid-auto">
+        <div className="grid grid-auto list-anim">
           {(grupoQ.data ?? []).map(g => (
             <GrupoCard key={g.id} g={g} inst={inst} proy={proy}
               onEdit={isAdmin ? openEdit : null}
