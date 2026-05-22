@@ -4,8 +4,21 @@ import { AlertTriangle } from 'lucide-react'
  * ConfirmModal — modal de confirmación para eliminar registros.
  * Uso:
  *   <ConfirmModal message="¿Eliminar?" onConfirm={fn} onCancel={fn} loading={bool} />
+ *
+ * Props opcionales para reutilizar más allá de eliminar:
+ *   confirmLabel     — texto del botón de confirmación (default: 'Eliminar')
+ *   loadingLabel     — texto mientras carga (default: 'Eliminando…')
+ *   confirmClassName — clase CSS del botón (default: 'btn-danger')
  */
-export default function ConfirmModal({ message = '¿Confirmas eliminar este registro? Esta acción no se puede deshacer.', onConfirm, onCancel, loading = false }) {
+export default function ConfirmModal({
+  message = '¿Confirmas eliminar este registro? Esta acción no se puede deshacer.',
+  onConfirm,
+  onCancel,
+  loading = false,
+  confirmLabel = 'Eliminar',
+  loadingLabel = 'Eliminando…',
+  confirmClassName = 'btn-danger',
+}) {
   return (
     <>
       <div className="modal-overlay" onClick={onCancel} />
@@ -16,8 +29,8 @@ export default function ConfirmModal({ message = '¿Confirmas eliminar este regi
           <button className="btn btn-outline" onClick={onCancel} disabled={loading}>
             Cancelar
           </button>
-          <button className="btn btn-danger" onClick={onConfirm} disabled={loading}>
-            {loading ? 'Eliminando…' : 'Eliminar'}
+          <button className={`btn ${confirmClassName}`} onClick={onConfirm} disabled={loading}>
+            {loading ? loadingLabel : confirmLabel}
           </button>
         </div>
       </div>
